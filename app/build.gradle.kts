@@ -1,7 +1,11 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
+    id("androidx.room")
 }
 
 android {
@@ -26,6 +30,7 @@ android {
 
     buildTypes {
         release {
+            isShrinkResources = true
             optimization {
                 enable = false
             }
@@ -35,12 +40,20 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     buildFeatures {
         compose = true
+    }
+
+    //noinspection WrongGradleMethod
+    room {
+        schemaDirectory("$projectDir/schemas")
     }
 }
 
 dependencies {
+    ksp(libs.hilt.compiler)
+    ksp(libs.room.compiler)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
@@ -53,6 +66,8 @@ dependencies {
     implementation(libs.androidx.navigation3.viewmodel)
     implementation(libs.kotlinx.serialization)
     implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.hilt.android)
+    implementation(libs.room.runtime)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

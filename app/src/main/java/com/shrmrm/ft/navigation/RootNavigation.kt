@@ -14,6 +14,9 @@ import androidx.navigation3.ui.NavDisplay
 import com.shrmrm.ft.screens.HomeScreen
 import com.shrmrm.ft.screens.TaskScreen
 
+private val animation =
+    fadeIn(tween(1000)) togetherWith fadeOut(tween(1000))
+
 @Composable
 fun RootNavigation(modifier: Modifier = Modifier) {
     val backStack = rememberNavBackStack(Routes.HomeRoute)
@@ -29,7 +32,7 @@ fun RootNavigation(modifier: Modifier = Modifier) {
             entryProvider {
                 entry<Routes.HomeRoute> {
                     HomeScreen(
-                        onNavigateToTrendsScreen = { backStack.add(Routes.HomeRoute) },
+                        onNavigateToTrendsScreen = { backStack.add(Routes.TasksRoute) },
                         modifier,
                     )
                 }
@@ -37,8 +40,8 @@ fun RootNavigation(modifier: Modifier = Modifier) {
                     TaskScreen(modifier)
                 }
             },
-        transitionSpec = {
-            fadeIn(tween(3000)) togetherWith fadeOut(tween(3000))
-        },
+        transitionSpec = { animation },
+        popTransitionSpec = { animation },
+        predictivePopTransitionSpec = { animation },
     )
 }

@@ -11,6 +11,8 @@ composeBom = "2026.05.01"
 nav3Core = "1.1.2"
 lifecycleViewmodelNav3 = "2.10.0"
 kotlinxSerialization = "1.11.0"
+hiltVersion = "2.59.2"
+roomVersion = "2.8.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -31,6 +33,10 @@ androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", vers
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core"}
 androidx-navigation3-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3"}
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization"}
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltVersion"}
+hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltVersion"}
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion"}
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
