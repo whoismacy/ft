@@ -12,8 +12,8 @@ android {
     namespace = "com.shrmrm.ft"
     compileSdk {
         version =
-            release(36) {
-                minorApiLevel = 1
+            release(37) {
+                minorApiLevel = 0
             }
     }
 
@@ -71,6 +71,8 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     implementation(libs.kotlin.metadata.jvm)
+    implementation(libs.hilt.lifecycle)
+    implementation(libs.androidx.material3.android)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
