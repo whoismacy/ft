@@ -2,11 +2,18 @@ package com.shrmrm.ft.data.db
 
 import androidx.room.TypeConverter
 import java.util.Date
+import java.util.UUID
 
 class FtConverters {
     @TypeConverter
-    fun fromDate(date: Date): Long = date.time
+    fun fromDateToLong(date: Date): Long = date.time
 
     @TypeConverter
-    fun fromLong(time: Long): Date = Date(time)
+    fun dateFromLong(time: Long): Date = Date(time)
+
+    @TypeConverter
+    fun fromUuidToString(uuid: UUID): String = uuid.toString()
+
+    @TypeConverter
+    fun uuidFromString(value: String): UUID = UUID.fromString(value)
 }
