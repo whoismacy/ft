@@ -30,6 +30,7 @@ android {
 
     buildTypes {
         release {
+            isMinifyEnabled = true
             isShrinkResources = true
             optimization {
                 enable = false
@@ -69,6 +70,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.kotlin.metadata.jvm)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

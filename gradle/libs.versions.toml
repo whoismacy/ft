@@ -6,13 +6,14 @@ junitVersion = "1.1.5"
 espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.9.4"
 activityCompose = "1.13.0"
-kotlin = "2.4.0"
+kotlin = "2.3.0"
 composeBom = "2026.05.01"
 nav3Core = "1.1.2"
 lifecycleViewmodelNav3 = "2.10.0"
 kotlinxSerialization = "1.11.0"
 hiltVersion = "2.59.2"
 roomVersion = "2.8.4"
+kotlinMetadataJvm = "2.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -38,6 +39,7 @@ hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.re
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion"}
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion"}
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomVersion"}
+kotlin-metadata-jvm = { module = "org.jetbrains.kotlin:kotlin-metadata-jvm" ,version.ref = "kotlinMetadataJvm"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
