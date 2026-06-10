@@ -2,6 +2,8 @@ package com.shrmrm.ft.data.db
 
 import androidx.room.Dao
 import androidx.room.Query
+import com.shrmrm.ft.data.domain.TaskLog
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskLogDao {
@@ -10,4 +12,7 @@ interface TaskLogDao {
         id: Int,
         status: String = "DONE",
     )
+
+    @Query("SELECT * FROM `tasks_logs`;")
+    fun loadAllTaskLogs(): Flow<List<TaskLog>>
 }

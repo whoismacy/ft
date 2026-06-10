@@ -1,10 +1,14 @@
 package com.shrmrm.ft.data.repository
 
+import androidx.compose.ui.platform.LocalContext
 import com.shrmrm.ft.data.db.ExpenseDao
 import com.shrmrm.ft.data.db.TaskDao
 import com.shrmrm.ft.data.db.TaskLogDao
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.combine
 import java.util.Date
 import javax.inject.Inject
+import kotlin.math.exp
 
 class FtRepository
     @Inject
@@ -13,6 +17,7 @@ class FtRepository
         private val taskDao: TaskDao,
         private val taskLogDao: TaskLogDao,
     ) {
+        // INSERTION
         suspend fun insertTask(name: String) {
             taskDao.insertTask(name)
         }
@@ -32,4 +37,13 @@ class FtRepository
         ) {
             taskLogDao.completeTask(id, status)
         }
+
+        // DELETION
+        // UPDATE
+        // FETCHING
+        fun loadAllExpenses() = expenseDao.loadAllExpenses()
+
+        fun loadAllTasks() = taskDao.loadAllTasks()
+
+        fun loadAllTaskLogs() = taskLogDao.loadAllTaskLogs()
     }
