@@ -25,13 +25,14 @@ sealed class FtIntent {
         val id: Int,
         val name: String,
         val amount: Int,
-    )
+    ) : FtIntent()
 
     data class CreateTask(
         val name: String,
-    )
+    ) : FtIntent()
 
     data class CompleteTask(
         val id: Int,
-    )
+        val status: String,
+    ) : FtIntent()
 }

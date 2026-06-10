@@ -1,14 +1,10 @@
 package com.shrmrm.ft.data.repository
 
-import androidx.compose.ui.platform.LocalContext
 import com.shrmrm.ft.data.db.ExpenseDao
 import com.shrmrm.ft.data.db.TaskDao
 import com.shrmrm.ft.data.db.TaskLogDao
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.combine
 import java.util.Date
 import javax.inject.Inject
-import kotlin.math.exp
 
 class FtRepository
     @Inject

@@ -2,6 +2,8 @@ package com.shrmrm.ft.data.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.shrmrm.ft.data.domain.TaskState
+import com.shrmrm.ft.data.events.EventManager
 import com.shrmrm.ft.data.repository.FtRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,21 +34,46 @@ class FtViewModel
         fun handleIntent(intent: FtIntent) {
             viewModelScope.launch {
                 when (intent) {
+                    // get
                     is FtIntent.LoadAll -> {
                         loadAll()
                     }
 
-                    //
+                    // delete
                     is FtIntent.DeleteExpense -> {}
 
                     is FtIntent.DeleteTask -> {}
 
-                    //
+                    // update
                     is FtIntent.UpdateExpense -> {}
 
                     is FtIntent.UpdateTask -> {}
+
+                    is FtIntent.CompleteTask -> {
+                        completeTask(
+                            intent.id,
+                            intent.status,
+                        )
+                    }
+
+                    // create
+                    is FtIntent.CreateTask -> {
+                        insertTask(intent.name)
+                    }
+
+                    is FtIntent.CreateExpense -> {
+                        insertExpense(
+                            intent.id,
+                            intent.name,
+                            intent.amount,
+                        )
+                    }
                 }
             }
+        }
+
+        private fun triggerEvent(message: String) {
+            EventManager.triggerEvent(EventManager.AppEvent.ShowSnackbar(message))
         }
 
         fun loadAll() {
@@ -68,9 +95,49 @@ class FtViewModel
             }.launchIn(viewModelScope)
         }
 
-        fun inserTask(name: String) {
+        fun insertTask(name: String) {
             viewModelScope.launch {
-                repo.insertTask(name)
+                try {
+                    repo.insertTask(name)
+                } catch (_: Exception) {
+                    triggerEvent("An error occurred while creating a new Task!")
+                }
+            }
+        }
+
+        fun insertExpense(
+            id: Int,
+            name: String,
+            amount: Int,
+        ) {
+            viewModelScope.launch {
+                try {
+                    repo.insertExpense(id, name, amount)
+                } catch (_: Exception) {
+                    triggerEvent("An error occurred while creating a new Expense!")
+                }
+            }
+        }
+
+        fun completeTask(
+            id: Int,
+            status: String,
+        ) {
+            val validStatus =
+                TaskState
+                    .entries
+                    .map { it.name }
+
+            if (status !in validStatus) {
+                triggerEvent("An error occurred while completing Task!")
+            } else {
+                viewModelScope.launch {
+                    try {
+                        repo.completeTask(id, status)
+                    } catch (_: Exception) {
+                        triggerEvent("An error occurred while completing Task!")
+                    }
+                }
             }
         }
     }
