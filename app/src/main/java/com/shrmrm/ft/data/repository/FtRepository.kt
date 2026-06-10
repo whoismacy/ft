@@ -1,21 +1,17 @@
 package com.shrmrm.ft.data.repository
 
-import com.shrmrm.ft.data.db.ExpenseDao
-import com.shrmrm.ft.data.db.TaskDao
-import com.shrmrm.ft.data.db.TaskLogDao
+import com.shrmrm.ft.data.db.FtDao
 import java.util.Date
 import javax.inject.Inject
 
 class FtRepository
     @Inject
     constructor(
-        private val expenseDao: ExpenseDao,
-        private val taskDao: TaskDao,
-        private val taskLogDao: TaskLogDao,
+        private val ftDao: FtDao,
     ) {
         // INSERTION
         suspend fun insertTask(name: String) {
-            taskDao.insertTask(name)
+            ftDao.insertTask(name)
         }
 
         suspend fun insertExpense(
@@ -24,22 +20,22 @@ class FtRepository
             amount: Int,
             date: Date = Date(),
         ) {
-            expenseDao.insertExpense(id, name, amount, date)
+            ftDao.insertExpense(id, name, amount, date)
         }
 
         suspend fun completeTask(
             id: Int,
             status: String = "DONE",
         ) {
-            taskLogDao.completeTask(id, status)
+            ftDao.completeTask(id, status)
         }
 
         // DELETION
         // UPDATE
         // FETCHING
-        fun loadAllExpenses() = expenseDao.loadAllExpenses()
+        fun loadAllExpenses() = ftDao.loadAllExpenses()
 
-        fun loadAllTasks() = taskDao.loadAllTasks()
+        fun loadAllTasks() = ftDao.loadAllTasks()
 
-        fun loadAllTaskLogs() = taskLogDao.loadAllTaskLogs()
+        fun loadAllTaskLogs() = ftDao.loadAllTaskLogs()
     }

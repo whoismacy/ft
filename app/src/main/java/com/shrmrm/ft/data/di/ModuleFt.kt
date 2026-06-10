@@ -20,11 +20,5 @@ object ModuleFt {
     ) = FtDb.getInstance(context)
 
     @Provides
-    fun provideExpenseDao(database: FtDb) = database.expenseDao()
-
-    @Provides
-    fun provideTaskDao(database: FtDb) = database.taskDao()
-
-    @Provides
-    fun provideTaskLogDao(database: FtDb) = database.taskLogDao()
+    fun provideFtDao(database: FtDb) = database.ftDao()
 }

@@ -12,11 +12,7 @@ import com.shrmrm.ft.data.domain.TaskLog
 @Database(entities = [Task::class, TaskLog::class, Expense::class], version = 1)
 @TypeConverters(FtConverters::class)
 abstract class FtDb : RoomDatabase() {
-    abstract fun expenseDao(): ExpenseDao
-
-    abstract fun taskDao(): TaskDao
-
-    abstract fun taskLogDao(): TaskLogDao
+    abstract fun ftDao(): FtDao
 
     companion object {
         private var INSTANCE: FtDb? = null
