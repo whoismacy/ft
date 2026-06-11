@@ -18,7 +18,7 @@ import com.shrmrm.ft.data.viewmodels.FtViewModel
 @Composable
 fun TaskScreen(
     modifier: Modifier = Modifier,
-    viewModel: FtViewModel = hiltViewModel(),
+    viewModel: FtViewModel,
 ) {
     val loadingState =
         viewModel

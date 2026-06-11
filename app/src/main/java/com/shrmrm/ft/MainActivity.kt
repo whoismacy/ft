@@ -4,8 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -13,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -52,6 +58,39 @@ class MainActivity : ComponentActivity() {
                 }
 
                 Scaffold(
+                    bottomBar = {
+                        BottomAppBar {
+                            NavigationBar {
+                                NavigationBarItem(
+                                    selected = true,
+                                    onClick = ({}),
+                                    icon = {
+                                        Icon(
+                                            modifier = Modifier.clickable(onClick = {}),
+                                            painter = painterResource(R.drawable.outline_family_home_24),
+                                            contentDescription = null,
+                                        )
+                                    },
+                                )
+                                NavigationBarItem(
+                                    selected = false,
+                                    onClick = ({}),
+                                    icon = {
+                                        Icon(
+                                            modifier = Modifier.clickable(onClick = {}),
+                                            painter = painterResource(R.drawable.outline_person_heart_24),
+                                            contentDescription = null,
+                                        )
+                                    },
+                                )
+                            }
+                            Icon(
+                                modifier = Modifier.clickable(onClick = {}),
+                                painter = painterResource(R.drawable.outline_person_heart_24),
+                                contentDescription = null,
+                            )
+                        }
+                    },
                     modifier =
                         Modifier.fillMaxSize(),
                 ) { innerPadding ->
