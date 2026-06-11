@@ -10,9 +10,26 @@ import java.util.Date
 
 @Dao
 interface FtDao {
+    // TASKS
+
+    @Query("INSERT INTO `tasks` (task_name) VALUES (:name);")
+    suspend fun createTask(name: String)
+
+    @Query("SELECT * FROM `tasks`;")
+    fun loadAllTasks(): Flow<List<Task>>
+
+    @Query("UPDATE `tasks` SET `task_name` = :name WHERE `task_id` = :id")
+    fun updateTask(
+        id: Int,
+        name: String,
+    )
+
+    @Query("DELETE FROM `tasks` WHERE `task_id` = :id;")
+    fun deleteTask(id: Int)
+
     // EXPENSES
     @Query("INSERT INTO 'expenses' (expense_id, expense_name, expense_amount, expense_date) VALUES (:id, :name, :amount, :date); ")
-    suspend fun insertExpense(
+    suspend fun createExpense(
         id: Int,
         name: String,
         amount: Int,
@@ -22,20 +39,22 @@ interface FtDao {
     @Query("SELECT * FROM `expenses`;")
     fun loadAllExpenses(): Flow<List<Expense>>
 
-    // TASKS
-    @Query("INSERT INTO `tasks` (task_name) VALUES(:name);")
-    suspend fun insertTask(name: String)
+    @Query("UPDATE `expenses` SET `expense_amount` = :value WHERE `expense_id` = :id;")
+    fun updateExpense(
+        id: Int,
+        value: Int,
+    )
 
-    @Query("SELECT * FROM `tasks`;")
-    fun loadAllTasks(): Flow<List<Task>>
+    @Query("DELETE FROM `expenses` WHERE `expense_id` = :id;")
+    fun deleteExpense(id: Int)
 
     // TASK LOGS
+    @Query("SELECT * FROM `tasks_logs`;")
+    fun loadAllTaskLogs(): Flow<List<TaskLog>>
+
     @Query("INSERT INTO `tasks_logs` (task_log_id, task_status) VALUES (:id, :status);")
     suspend fun completeTask(
         id: Int,
         status: String = "DONE",
     )
-
-    @Query("SELECT * FROM `tasks_logs`;")
-    fun loadAllTaskLogs(): Flow<List<TaskLog>>
 }

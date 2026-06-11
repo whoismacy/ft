@@ -9,19 +9,50 @@ class FtRepository
     constructor(
         private val ftDao: FtDao,
     ) {
-        // INSERTION
-        suspend fun insertTask(name: String) {
-            ftDao.insertTask(name)
+        // TASKS
+        suspend fun createTask(name: String) {
+            ftDao.createTask(name)
         }
 
-        suspend fun insertExpense(
+        fun loadAllTasks() = ftDao.loadAllTasks()
+
+        fun updateTask(
+            id: Int,
+            name: String,
+        ) {
+            ftDao.updateTask(id, name)
+        }
+
+        fun deleteTask(id: Int) {
+            ftDao.deleteTask(id)
+        }
+
+        // EXPENSES
+        suspend fun createExpense(
             id: Int,
             name: String,
             amount: Int,
             date: Date = Date(),
         ) {
-            ftDao.insertExpense(id, name, amount, date)
+            ftDao.createExpense(id, name, amount, date)
         }
+
+        fun loadAllExpenses() = ftDao.loadAllExpenses()
+
+        fun updateExpense(
+            id: Int,
+            value: Int,
+        ) {
+            ftDao.updateExpense(id, value)
+        }
+
+        fun deleteExpense(id: Int) {
+            ftDao.deleteTask(id)
+        }
+
+        // TASK LOGS
+
+        fun loadAllTaskLogs() = ftDao.loadAllTaskLogs()
 
         suspend fun completeTask(
             id: Int,
@@ -29,13 +60,4 @@ class FtRepository
         ) {
             ftDao.completeTask(id, status)
         }
-
-        // DELETION
-        // UPDATE
-        // FETCHING
-        fun loadAllExpenses() = ftDao.loadAllExpenses()
-
-        fun loadAllTasks() = ftDao.loadAllTasks()
-
-        fun loadAllTaskLogs() = ftDao.loadAllTaskLogs()
     }

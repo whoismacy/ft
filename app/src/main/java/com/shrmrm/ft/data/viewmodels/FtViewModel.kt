@@ -34,38 +34,42 @@ class FtViewModel
         fun handleIntent(intent: FtIntent) {
             viewModelScope.launch {
                 when (intent) {
-                    // get
                     is FtIntent.LoadAll -> {
                         loadAll()
                     }
 
-                    // delete
-                    is FtIntent.DeleteExpense -> {}
+                    is FtIntent.CreateTask -> {
+                        createNewTask(intent.name)
+                    }
 
-                    is FtIntent.DeleteTask -> {}
+                    is FtIntent.UpdateTask -> {
+                        updateTask(intent.id, intent.name)
+                    }
 
-                    // update
-                    is FtIntent.UpdateExpense -> {}
+                    is FtIntent.DeleteTask -> {
+                        deleteTask(intent.id)
+                    }
 
-                    is FtIntent.UpdateTask -> {}
+                    is FtIntent.CreateExpense -> {
+                        createNewExpense(
+                            intent.id,
+                            intent.name,
+                            intent.amount,
+                        )
+                    }
+
+                    is FtIntent.UpdateExpense -> {
+                        updateExpense(intent.id, intent.value)
+                    }
+
+                    is FtIntent.DeleteExpense -> {
+                        deleteExpense(intent.id)
+                    }
 
                     is FtIntent.CompleteTask -> {
                         completeTask(
                             intent.id,
                             intent.status,
-                        )
-                    }
-
-                    // create
-                    is FtIntent.CreateTask -> {
-                        insertTask(intent.name)
-                    }
-
-                    is FtIntent.CreateExpense -> {
-                        insertExpense(
-                            intent.id,
-                            intent.name,
-                            intent.amount,
                         )
                     }
                 }
@@ -95,26 +99,72 @@ class FtViewModel
             }.launchIn(viewModelScope)
         }
 
-        fun insertTask(name: String) {
+        fun createNewTask(name: String) {
             viewModelScope.launch {
                 try {
-                    repo.insertTask(name)
+                    repo.createTask(name)
                 } catch (_: Exception) {
                     triggerEvent("An error occurred while creating a new Task!")
                 }
             }
         }
 
-        fun insertExpense(
+        fun updateTask(
+            id: Int,
+            name: String,
+        ) {
+            viewModelScope.launch {
+                try {
+                    repo.updateTask(id, name)
+                } catch (_: Exception) {
+                    triggerEvent("An error occurred while updating Task!")
+                }
+            }
+        }
+
+        fun deleteTask(id: Int) {
+            viewModelScope.launch {
+                try {
+                    repo.deleteTask(id)
+                } catch (_: Exception) {
+                    triggerEvent("An error occurred while deleting Task")
+                }
+            }
+        }
+
+        fun createNewExpense(
             id: Int,
             name: String,
             amount: Int,
         ) {
             viewModelScope.launch {
                 try {
-                    repo.insertExpense(id, name, amount)
+                    repo.createExpense(id, name, amount)
                 } catch (_: Exception) {
                     triggerEvent("An error occurred while creating a new Expense!")
+                }
+            }
+        }
+
+        fun updateExpense(
+            id: Int,
+            value: Int,
+        ) {
+            viewModelScope.launch {
+                try {
+                    repo.updateExpense(id, value)
+                } catch (_: Exception) {
+                    triggerEvent("An error occurred while updating Expense!")
+                }
+            }
+        }
+
+        fun deleteExpense(id: Int) {
+            viewModelScope.launch {
+                try {
+                    repo.deleteExpense(id)
+                } catch (_: Exception) {
+                    triggerEvent("An error occurred while deleting Expense!")
                 }
             }
         }
