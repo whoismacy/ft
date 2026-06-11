@@ -10,6 +10,7 @@ import java.util.Date
 
 @Dao
 interface FtDao {
+    // EXPENSES
     @Query("INSERT INTO 'expenses' (expense_id, expense_name, expense_amount, expense_date) VALUES (:id, :name, :amount, :date); ")
     suspend fun insertExpense(
         id: Int,
@@ -21,12 +22,14 @@ interface FtDao {
     @Query("SELECT * FROM `expenses`;")
     fun loadAllExpenses(): Flow<List<Expense>>
 
+    // TASKS
     @Query("INSERT INTO `tasks` (task_name) VALUES(:name);")
     suspend fun insertTask(name: String)
 
     @Query("SELECT * FROM `tasks`;")
     fun loadAllTasks(): Flow<List<Task>>
 
+    // TASK LOGS
     @Query("INSERT INTO `tasks_logs` (task_log_id, task_status) VALUES (:id, :status);")
     suspend fun completeTask(
         id: Int,
