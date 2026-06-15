@@ -34,7 +34,7 @@ fun TaskScreen(viewModel: FtViewModel) {
 
     Scaffold(
         floatingActionButton = {
-            ScreenFab()
+            ScreenFab(onClick = {})
         },
     ) { innerPadding ->
         Box(

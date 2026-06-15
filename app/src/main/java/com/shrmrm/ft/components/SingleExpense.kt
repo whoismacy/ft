@@ -3,8 +3,11 @@ package com.shrmrm.ft.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -20,38 +23,47 @@ import androidx.compose.ui.unit.dp
 import com.shrmrm.ft.data.domain.Expense
 
 @Composable
-fun SingleExpense(
-    expense: Expense,
-    modifier: Modifier = Modifier,
-) {
+fun SingleExpense(expense: Expense) {
     Card(
         colors =
             CardDefaults
                 .cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation =
-            CardDefaults
-                .cardElevation(1.dp),
         border =
             BorderStroke(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
             ),
         modifier =
-            modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp, horizontal = 12.dp)
-                .clip(RoundedCornerShape(8.dp)),
+            Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(1.dp)),
     ) {
         Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp, horizontal = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             val expensePositive = expense.amount > 0
-            Text(text = expense.name, overflow = TextOverflow.Clip)
             Text(
-                if (expensePositive) "${expense.amount}" else "-${expense.amount}",
-                color = if (expensePositive) Color.Green else Color.Red,
-                style = MaterialTheme.typography.bodyMediumEmphasized,
+                text = expense.name,
+                maxLines = 1,
+                modifier = Modifier.weight(1f),
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleMediumEmphasized,
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                "KShs. ${expense.amount}",
+                color =
+                    if (expensePositive) {
+                        MaterialTheme.colorScheme.tertiary
+                    } else {
+                        Color.Red
+                    },
+                style = MaterialTheme.typography.bodyLargeEmphasized,
             )
         }
     }

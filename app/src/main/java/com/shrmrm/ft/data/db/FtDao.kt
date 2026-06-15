@@ -28,9 +28,8 @@ interface FtDao {
     fun deleteTask(id: Int)
 
     // EXPENSES
-    @Query("INSERT INTO 'expenses' (expense_id, expense_name, expense_amount, expense_date) VALUES (:id, :name, :amount, :date); ")
+    @Query("INSERT INTO 'expenses' (expense_name, expense_amount, expense_date) VALUES (:name, :amount, :date); ")
     suspend fun createExpense(
-        id: Int,
         name: String,
         amount: Int,
         date: Date = Date(),

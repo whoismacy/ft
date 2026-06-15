@@ -1,25 +1,32 @@
 package com.shrmrm.ft.components
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import com.shrmrm.ft.R
 
 @Composable
 fun ScreenFab(
-    text: String = "New",
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {},
+    text: String = "New",
+    onClick: () -> Unit,
 ) {
-    FloatingActionButton(
+    ExtendedFloatingActionButton(
         onClick = onClick,
+        text = { Text(text) },
         modifier = modifier,
-    ) {
-        Row {
-            Text(text)
-            Text("+", style = MaterialTheme.typography.bodyMediumEmphasized)
-        }
-    }
+        icon = {
+            Icon(
+                painter =
+                    painterResource(R.drawable.outline_add_24),
+                contentDescription = null,
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+    )
 }

@@ -29,12 +29,11 @@ class FtRepository
 
         // EXPENSES
         suspend fun createExpense(
-            id: Int,
             name: String,
             amount: Int,
             date: Date = Date(),
         ) {
-            ftDao.createExpense(id, name, amount, date)
+            ftDao.createExpense(name, amount, date)
         }
 
         fun loadAllExpenses() = ftDao.loadAllExpenses()

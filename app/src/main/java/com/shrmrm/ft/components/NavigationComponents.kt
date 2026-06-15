@@ -6,6 +6,6 @@ enum class NavigationComponents(
     val label: String,
     val icon: Int,
 ) {
-    Expense("Expense", R.drawable.outline_person_heart_24),
+    Expense("Expense", R.drawable.outline_family_home_24),
     Tasks("Tasks", R.drawable.outline_person_heart_24),
 }

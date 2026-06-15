@@ -21,9 +21,6 @@ class FtViewModel
     constructor(
         private val repo: FtRepository,
     ) : ViewModel() {
-        private val _loading = MutableStateFlow(true)
-        val loading = _loading.asStateFlow()
-
         private val _ftUiViewState = MutableStateFlow(FtUiViewState())
         val ftUiViewState: StateFlow<FtUiViewState> = _ftUiViewState.asStateFlow()
 
@@ -52,7 +49,6 @@ class FtViewModel
 
                     is FtIntent.CreateExpense -> {
                         createNewExpense(
-                            intent.id,
                             intent.name,
                             intent.amount,
                         )
@@ -100,11 +96,14 @@ class FtViewModel
         }
 
         fun createNewTask(name: String) {
+            _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = true)
             viewModelScope.launch {
                 try {
                     repo.createTask(name)
+                    _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
                 } catch (_: Exception) {
                     triggerEvent("An error occurred while creating a new Task!")
+                    _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
                 }
             }
         }
@@ -113,10 +112,13 @@ class FtViewModel
             id: Int,
             name: String,
         ) {
+            _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = true)
             viewModelScope.launch {
                 try {
                     repo.updateTask(id, name)
+                    _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
                 } catch (_: Exception) {
+                    _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
                     triggerEvent("An error occurred while updating Task!")
                 }
             }
@@ -133,13 +135,12 @@ class FtViewModel
         }
 
         fun createNewExpense(
-            id: Int,
             name: String,
             amount: Int,
         ) {
             viewModelScope.launch {
                 try {
-                    repo.createExpense(id, name, amount)
+                    repo.createExpense(name, amount)
                 } catch (_: Exception) {
                     triggerEvent("An error occurred while creating a new Expense!")
                 }
