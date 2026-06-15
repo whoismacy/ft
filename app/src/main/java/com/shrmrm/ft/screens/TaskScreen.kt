@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +34,9 @@ fun TaskScreen(viewModel: FtViewModel) {
     val allTasks = tasksGroupedByDate.values.toList()
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(viewModel.snackBarHost)
+        },
         floatingActionButton = {
             ScreenFab(onClick = {})
         },

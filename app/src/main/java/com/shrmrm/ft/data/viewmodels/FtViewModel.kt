@@ -1,5 +1,7 @@
 package com.shrmrm.ft.data.viewmodels
 
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shrmrm.ft.data.domain.TaskState
@@ -24,6 +26,9 @@ class FtViewModel
     ) : ViewModel() {
         private val _ftUiViewState = MutableStateFlow(FtUiViewState())
         val ftUiViewState: StateFlow<FtUiViewState> = _ftUiViewState.asStateFlow()
+
+        private val _snackBarHost = mutableStateOf(SnackbarHostState())
+        val snackBarHost = _snackBarHost.value
 
         init {
             handleIntent(FtIntent.LoadAll)
@@ -73,6 +78,10 @@ class FtViewModel
             }
         }
 
+        private fun changeLoading(state: Boolean) {
+            _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = state)
+        }
+
         private fun triggerEvent(message: String) {
             EventManager.triggerEvent(EventManager.AppEvent.ShowSnackbar(message))
         }
@@ -95,14 +104,14 @@ class FtViewModel
         }
 
         private suspend fun createNewTask(name: String) {
-            _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = true)
+            changeLoading(true)
             try {
                 repo.createTask(name)
                 triggerEvent("Task Successfully added🎉")
-                _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
+                changeLoading(false)
             } catch (_: Exception) {
-                triggerEvent("An error occurred while creating a new Task!")
-                _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
+                triggerEvent("An error occurred while creating a new Task! ❌")
+                changeLoading(false)
             }
         }
 
@@ -110,21 +119,26 @@ class FtViewModel
             id: Int,
             name: String,
         ) {
-            _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = true)
+            changeLoading(true)
             try {
                 repo.updateTask(id, name)
-                _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
+                changeLoading(false)
+                triggerEvent("Task successfully updated🎉")
             } catch (_: Exception) {
-                _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
+                changeLoading(false)
                 triggerEvent("An error occurred while updating Task!")
             }
         }
 
         private fun deleteTask(id: Int) {
+            changeLoading(true)
             try {
                 repo.deleteTask(id)
+                changeLoading(false)
+                triggerEvent("Task successfully deleted🎉")
             } catch (_: Exception) {
                 triggerEvent("An error occurred while deleting Task")
+                changeLoading(false)
             }
         }
 
@@ -132,14 +146,14 @@ class FtViewModel
             name: String,
             amount: Int,
         ) {
-            _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = true)
+            changeLoading(true)
             try {
                 repo.createExpense(name, amount)
-                triggerEvent("Task Successfully created🎉")
-                _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
+                triggerEvent("Expense Successfully created🎉")
+                changeLoading(false)
             } catch (_: Exception) {
                 triggerEvent("An error occurred while creating a new Expense!")
-                _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
+                changeLoading(false)
             }
         }
 
@@ -147,18 +161,25 @@ class FtViewModel
             id: Int,
             value: Int,
         ) {
+            changeLoading(true)
             try {
                 repo.updateExpense(id, value)
+                changeLoading(false)
             } catch (_: Exception) {
                 triggerEvent("An error occurred while updating Expense!")
+                changeLoading(false)
             }
         }
 
         private fun deleteExpense(id: Int) {
+            changeLoading(true)
             try {
                 repo.deleteExpense(id)
+                triggerEvent("Expense successfully deleted 🎉")
+                changeLoading(false)
             } catch (_: Exception) {
                 triggerEvent("An error occurred while deleting Expense!")
+                changeLoading(false)
             }
         }
 
@@ -166,6 +187,7 @@ class FtViewModel
             id: Int,
             status: String,
         ) {
+            changeLoading(true)
             val validStatus =
                 TaskState
                     .entries
@@ -177,8 +199,10 @@ class FtViewModel
                 viewModelScope.launch {
                     try {
                         repo.completeTask(id, status)
+                        changeLoading(false)
                     } catch (_: Exception) {
                         triggerEvent("An error occurred while completing Task!")
+                        changeLoading(false)
                     }
                 }
             }
