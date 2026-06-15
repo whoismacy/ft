@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.kotlin.metadata.jvm)
     implementation(libs.hilt.lifecycle)
     implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.compose.adaptive.navigation)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

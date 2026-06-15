@@ -1,48 +1,57 @@
 package com.shrmrm.ft.screens
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ContainedLoadingIndicator
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Text
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.shrmrm.ft.components.DailyTasks
+import com.shrmrm.ft.components.EmptyState
+import com.shrmrm.ft.components.ScreenFab
 import com.shrmrm.ft.data.viewmodels.FtViewModel
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun TaskScreen(
-    modifier: Modifier = Modifier,
-    viewModel: FtViewModel,
-) {
-    val loadingState =
+fun TaskScreen(viewModel: FtViewModel) {
+    val state =
         viewModel
-            .loading
+            .ftUiViewState
             .collectAsStateWithLifecycle()
             .value
+    val tasksGroupedByDate =
+        state
+            .tasks
+            .groupBy { it.created }
+            .toSortedMap(compareBy<Date> { it }.reversed())
+    val allTasks = tasksGroupedByDate.values.toList()
 
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center,
-    ) {
-        if (loadingState) {
-            Box(
-                Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                ContainedLoadingIndicator(
-                    Modifier
-                        .size(64.dp)
-                        .align(Alignment.Center),
-                )
+    Scaffold(
+        floatingActionButton = {
+            ScreenFab()
+        },
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier.padding(innerPadding),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (state.tasks.isEmpty()) {
+                EmptyState("No Tasks found!.")
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    items(allTasks) {
+                        DailyTasks(it, viewModel)
+                    }
+                }
             }
-        } else {
-            Text("TaskScreen under construction")
         }
     }
 }
