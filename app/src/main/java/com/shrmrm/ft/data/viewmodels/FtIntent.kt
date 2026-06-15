@@ -17,7 +17,6 @@ sealed class FtIntent {
     ) : FtIntent()
 
     data class CreateExpense(
-        val id: Int,
         val name: String,
         val amount: Int,
     ) : FtIntent()

@@ -46,7 +46,7 @@ class FtRepository
         }
 
         fun deleteExpense(id: Int) {
-            ftDao.deleteTask(id)
+            ftDao.deleteExpense(id)
         }
 
         // TASK LOGS

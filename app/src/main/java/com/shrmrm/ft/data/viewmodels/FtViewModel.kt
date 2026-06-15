@@ -6,6 +6,7 @@ import com.shrmrm.ft.data.domain.TaskState
 import com.shrmrm.ft.data.events.EventManager
 import com.shrmrm.ft.data.repository.FtRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,7 +30,7 @@ class FtViewModel
         }
 
         fun handleIntent(intent: FtIntent) {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 when (intent) {
                     is FtIntent.LoadAll -> {
                         loadAll()
@@ -77,15 +78,13 @@ class FtViewModel
         }
 
         fun loadAll() {
-            _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = true)
             combine(
                 repo.loadAllTasks(),
                 repo.loadAllExpenses(),
                 repo.loadAllTaskLogs(),
             ) { tasks, expenses, taskLogs ->
-                FtUiViewState(
-                    isLoading = true,
-                    error = null,
+                _ftUiViewState.value.copy(
+                    isLoading = false,
                     tasks = tasks,
                     expenses = expenses,
                     taskLogs = taskLogs,
@@ -95,82 +94,75 @@ class FtViewModel
             }.launchIn(viewModelScope)
         }
 
-        fun createNewTask(name: String) {
+        private suspend fun createNewTask(name: String) {
             _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = true)
-            viewModelScope.launch {
-                try {
-                    repo.createTask(name)
-                    _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
-                } catch (_: Exception) {
-                    triggerEvent("An error occurred while creating a new Task!")
-                    _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
-                }
+            try {
+                repo.createTask(name)
+                triggerEvent("Task Successfully added🎉")
+                _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
+            } catch (_: Exception) {
+                triggerEvent("An error occurred while creating a new Task!")
+                _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
             }
         }
 
-        fun updateTask(
+        private fun updateTask(
             id: Int,
             name: String,
         ) {
             _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = true)
-            viewModelScope.launch {
-                try {
-                    repo.updateTask(id, name)
-                    _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
-                } catch (_: Exception) {
-                    _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
-                    triggerEvent("An error occurred while updating Task!")
-                }
+            try {
+                repo.updateTask(id, name)
+                _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
+            } catch (_: Exception) {
+                _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
+                triggerEvent("An error occurred while updating Task!")
             }
         }
 
-        fun deleteTask(id: Int) {
-            viewModelScope.launch {
-                try {
-                    repo.deleteTask(id)
-                } catch (_: Exception) {
-                    triggerEvent("An error occurred while deleting Task")
-                }
+        private fun deleteTask(id: Int) {
+            try {
+                repo.deleteTask(id)
+            } catch (_: Exception) {
+                triggerEvent("An error occurred while deleting Task")
             }
         }
 
-        fun createNewExpense(
+        private suspend fun createNewExpense(
             name: String,
             amount: Int,
         ) {
-            viewModelScope.launch {
-                try {
-                    repo.createExpense(name, amount)
-                } catch (_: Exception) {
-                    triggerEvent("An error occurred while creating a new Expense!")
-                }
+            _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = true)
+            try {
+                repo.createExpense(name, amount)
+                triggerEvent("Task Successfully created🎉")
+                _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
+            } catch (_: Exception) {
+                triggerEvent("An error occurred while creating a new Expense!")
+                _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = false)
             }
         }
 
-        fun updateExpense(
+        private fun updateExpense(
             id: Int,
             value: Int,
         ) {
-            viewModelScope.launch {
-                try {
-                    repo.updateExpense(id, value)
-                } catch (_: Exception) {
-                    triggerEvent("An error occurred while updating Expense!")
-                }
+            try {
+                repo.updateExpense(id, value)
+            } catch (_: Exception) {
+                triggerEvent("An error occurred while updating Expense!")
             }
         }
 
-        fun deleteExpense(id: Int) {
-            viewModelScope.launch {
-                try {
-                    repo.deleteExpense(id)
-                } catch (_: Exception) {
-                    triggerEvent("An error occurred while deleting Expense!")
-                }
+        private fun deleteExpense(id: Int) {
+            try {
+                repo.deleteExpense(id)
+            } catch (_: Exception) {
+                triggerEvent("An error occurred while deleting Expense!")
             }
         }
 
-        fun completeTask(
+        private fun completeTask(
             id: Int,
             status: String,
         ) {

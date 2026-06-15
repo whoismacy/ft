@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.shrmrm.ft.data.viewmodels.FtIntent
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 
 @Composable
@@ -47,7 +48,12 @@ fun ExpenseDialog(
             } else {
                 expenseAmount.toInt()
             }
-        viewModel.createNewExpense(expensePurpose, value)
+        viewModel.handleIntent(
+            FtIntent.CreateExpense(
+                name = expensePurpose,
+                amount = value,
+            ),
+        )
     }
 
     Dialog(
