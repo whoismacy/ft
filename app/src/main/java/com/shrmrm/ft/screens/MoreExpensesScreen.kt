@@ -2,65 +2,86 @@ package com.shrmrm.ft.screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Text
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.shrmrm.ft.components.BentoBox
+import com.shrmrm.ft.components.EmptyState
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 import java.time.LocalDate
 import java.time.ZoneId
-import kotlin.collections.filter
-import kotlin.collections.sortedBy
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MoreExpensesScreen(
-    viewModel: FtViewModel,
-    modifier: Modifier = Modifier,
-) {
+fun MoreExpensesScreen(viewModel: FtViewModel) {
     val zone = ZoneId.systemDefault()
     val today = LocalDate.now()
 
-    val startOfSixMonths =
-        today
-            .minusMonths(6)
-            .atStartOfDay(zone)
-            .toInstant()
     val startOfTomorrow =
         today
             .plusDays(1)
             .atStartOfDay(zone)
             .toInstant()
+    val startOfThreeMonths =
+        today
+            .minusMonths(3)
+            .atStartOfDay(zone)
+            .toInstant()
+    val startOfSixMonths =
+        today
+            .minusMonths(6)
+            .atStartOfDay(zone)
+            .toInstant()
+    val startOfOneYear =
+        today
+            .minusMonths(12)
+            .atStartOfDay(zone)
+            .toInstant()
 
-    val expenses =
+    val expenses3 =
+        viewModel
+            .getExpenseInRange(startOfThreeMonths, startOfTomorrow)
+            .collectAsStateWithLifecycle(emptyList())
+            .value
+
+    val expenses6 =
         viewModel
             .getExpenseInRange(startOfSixMonths, startOfTomorrow)
             .collectAsStateWithLifecycle(emptyList())
             .value
 
-    val highest = expenses.sortedBy { it.amount }.last()
-    val sumIn = expenses.filter { it.amount > 0 }.sumOf { it.amount }
-    val sumOut = expenses.filter { it.amount < 0 }.sumOf { it.amount }
+    val expenses12 =
+        viewModel
+            .getExpenseInRange(startOfOneYear, startOfTomorrow)
+            .collectAsStateWithLifecycle(emptyList())
+            .value
 
-    Box(
-        modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
+    if (expenses3.isEmpty() ||
+        expenses6.isEmpty() ||
+        expenses12.isEmpty()
     ) {
-        Column(verticalArrangement = Arrangement.SpaceBetween) {
-            Text("Past Six Months")
-            Spacer(Modifier.height(24.dp))
-            Text("Total Expenses: ${expenses.size}")
-            Text("In: $sumIn")
-            Text("Out: $sumOut")
-            Text("Highest Spend: ${highest.name} -> ${highest.amount}")
+        EmptyState(message = "No expenses found")
+    } else {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .scrollable(
+                        state = rememberScrollState(),
+                        orientation = Orientation.Vertical,
+                    ),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+        ) {
+            BentoBox(title = "Past 3 Month's Expenses", expenses = expenses3)
+            BentoBox(title = "Past 6 Month's Expenses", expenses = expenses6)
+            BentoBox(title = "Past Year Expenses", expenses = expenses12)
         }
     }
 }

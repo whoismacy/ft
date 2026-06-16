@@ -3,7 +3,7 @@ package com.shrmrm.ft.data.domain
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlin.time.Instant
+import java.time.Instant
 
 @Entity(
     tableName = "expenses",

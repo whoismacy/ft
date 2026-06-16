@@ -2,22 +2,17 @@ package com.shrmrm.ft.screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.shrmrm.ft.components.BentoBox
+import com.shrmrm.ft.components.EmptyState
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 import java.time.LocalDate
 import java.time.ZoneId
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun YesterdayExpensesScreen(
-    viewModel: FtViewModel,
-    modifier: Modifier = Modifier,
-) {
+fun YesterdayExpensesScreen(viewModel: FtViewModel) {
     val zone = ZoneId.systemDefault()
     val today = LocalDate.now()
 
@@ -29,13 +24,10 @@ fun YesterdayExpensesScreen(
             .getExpenseInRange(startOfYesterday, startOfToday)
             .collectAsStateWithLifecycle(emptyList())
             .value
-    val highest = expenses.sortedBy { it.amount }.last()
-    val sumIn = expenses.filter { it.amount > 0 }.sumOf { it.amount }
-    val sumOut = expenses.filter { it.amount < 0 }.sumOf { it.amount }
 
-    Box(
-        modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
+    if (expenses.isEmpty()) {
+        EmptyState(message = "No expenses found")
+    } else {
+        BentoBox(title = "Yesterday's Expenses", expenses = expenses)
     }
 }

@@ -44,7 +44,7 @@ fun ExpenseScreen(viewModel: FtViewModel) {
         },
     ) { innerPadding ->
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(innerPadding),
         ) {
             PrimaryScrollableTabRow(
                 selectedTabIndex =
@@ -70,7 +70,6 @@ fun ExpenseScreen(viewModel: FtViewModel) {
                         }
                     },
                 scrollState = rememberScrollState(),
-                modifier = Modifier.padding(innerPadding),
             ) {
                 TabDestinations.entries.forEach { destinations ->
                     Tab(

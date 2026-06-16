@@ -20,7 +20,7 @@ interface FtDao {
     @Query("SELECT * FROM `tasks`;")
     fun loadAllTasks(): Flow<List<Task>>
 
-    @Query("SELECT * FROM `tasks` WHERE `created_at` >= :start AND `created_at` < :end; ")
+    @Query("SELECT * FROM `expenses` WHERE `expense_date` >= :start AND `expense_date` < :end; ")
     fun getExpenseInRange(
         start: Instant,
         end: Instant,

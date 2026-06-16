@@ -1,5 +1,7 @@
 package com.shrmrm.ft.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,9 +18,9 @@ import com.shrmrm.ft.components.DailyTasks
 import com.shrmrm.ft.components.EmptyState
 import com.shrmrm.ft.components.ScreenFab
 import com.shrmrm.ft.data.viewmodels.FtViewModel
-import java.util.Date
-import kotlin.time.Instant
+import java.time.Instant
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TaskScreen(viewModel: FtViewModel) {
