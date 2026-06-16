@@ -23,7 +23,10 @@ import com.shrmrm.ft.components.NavigationComponents
 import com.shrmrm.ft.data.events.EventManager
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 import com.shrmrm.ft.screens.ExpenseScreen
+import com.shrmrm.ft.screens.MoreExpensesScreen
+import com.shrmrm.ft.screens.PastWeekExpensesScreen
 import com.shrmrm.ft.screens.TaskScreen
+import com.shrmrm.ft.screens.YesterdayExpensesScreen
 import kotlinx.coroutines.launch
 
 private val animation =
@@ -86,6 +89,18 @@ fun RootNavigation(viewModel: FtViewModel = hiltViewModel()) {
                         TaskScreen(
                             viewModel = viewModel,
                         )
+                    }
+
+                    entry<Routes.YesterdayExpensesRoute> {
+                        YesterdayExpensesScreen(viewModel = viewModel)
+                    }
+
+                    entry<Routes.PastWeekExpensesRoute> {
+                        PastWeekExpensesScreen(viewModel = viewModel)
+                    }
+
+                    entry<Routes.MoreExpensesRoute> {
+                        MoreExpensesScreen(viewModel = viewModel)
                     }
                 },
             transitionSpec = { animation },

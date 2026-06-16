@@ -1,10 +1,13 @@
 package com.shrmrm.ft.components
 
+import com.shrmrm.ft.navigation.Routes
+
 enum class TabDestinations(
     val value: String,
+    val route: Routes,
 ) {
-    TODAY("Today"),
-    YESTERDAY("Yesterday"),
-    PAST_WEEK("Past Week"),
-    MORE("More"),
+    TODAY("Today", Routes.ExpensesRoute),
+    YESTERDAY("Yesterday", Routes.YesterdayExpensesRoute),
+    PAST_WEEK("Past Week", Routes.PastWeekExpensesRoute),
+    MORE("More", Routes.MoreExpensesRoute),
 }

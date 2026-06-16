@@ -46,7 +46,10 @@ fun TaskScreen(viewModel: FtViewModel) {
             contentAlignment = Alignment.Center,
         ) {
             if (state.tasks.isEmpty()) {
-                EmptyState("No Tasks found!.")
+                EmptyState(
+                    message = "No Tasks found!",
+                    supportingMessage = "Create new Tasks to see them here",
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),

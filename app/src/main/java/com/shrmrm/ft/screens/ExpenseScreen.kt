@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.shrmrm.ft.LocalAppNavigator
 import com.shrmrm.ft.components.EmptyState
 import com.shrmrm.ft.components.ExpenseDialog
 import com.shrmrm.ft.components.ScreenFab
@@ -56,7 +58,13 @@ fun ExpenseScreen(viewModel: FtViewModel) {
         topBar = {
             TopAppBar(title = {
                 Text(
-                    if (expenses.isEmpty()) "NO EXPENSES TODAY" else "${expenses.size} EXPENSES TODAY",
+                    if (expenses.isEmpty()) {
+                        "NO EXPENSES TODAY"
+                    } else if (expenses.size == 1) {
+                        "1 EXPENSE TODAY"
+                    } else {
+                        "${expenses.size} EXPENSES TODAY"
+                    },
                     style = MaterialTheme.typography.titleLargeEmphasized,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
@@ -70,13 +78,14 @@ fun ExpenseScreen(viewModel: FtViewModel) {
         ) {
             PrimaryScrollableTabRow(
                 selectedTabIndex = selectedTabDestination,
+                scrollState = rememberScrollState(),
                 modifier = Modifier.padding(innerPadding),
             ) {
-                TabDestinations.entries.forEachIndexed { index, destinations ->
+                TabDestinations.entries.forEach { destinations ->
+                    selectedTabDestination = destinations.ordinal
                     Tab(
-                        selected =
-                            selectedTabDestination == index,
-                        onClick = {},
+                        selected = destinations.route == navigator.backStack.last(),
+                        onClick = { navigator.navigateTo(destinations.route) },
                         text = { Text(destinations.value) },
                     )
                 }

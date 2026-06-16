@@ -28,8 +28,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.shrmrm.ft.R
 import com.shrmrm.ft.data.domain.Expense
 import com.shrmrm.ft.data.viewmodels.FtIntent
@@ -51,7 +55,7 @@ fun SingleExpense(
         state = swipeToDismissBoxState,
         onDismiss = { dismissValue ->
             when (dismissValue) {
-                SwipeToDismissBoxValue.StartToEnd -> {
+                SwipeToDismissBoxValue.EndToStart -> {
                     coroutineScope.launch { swipeToDismissBoxState.reset() }
                     viewModel.handleIntent(FtIntent.DeleteExpense(expense.expenseId))
                 }
@@ -65,15 +69,20 @@ fun SingleExpense(
         },
         backgroundContent = {
             when (swipeToDismissBoxState.dismissDirection) {
-                SwipeToDismissBoxValue.StartToEnd -> {
+                SwipeToDismissBoxValue.EndToStart -> {
                     Icon(
                         painterResource(R.drawable.baseline_delete_forever_24),
                         contentDescription = null,
                         modifier =
                             Modifier
                                 .fillMaxSize()
-                                .background(lerp(Color.LightGray, Color.Red, swipeToDismissBoxState.progress))
-                                .wrapContentSize(Alignment.CenterStart)
+                                .background(
+                                    lerp(
+                                        Color.LightGray,
+                                        Color.Red,
+                                        swipeToDismissBoxState.progress,
+                                    ),
+                                ).wrapContentSize(Alignment.CenterStart)
                                 .padding(12.dp),
                         tint = Color.White,
                     )
@@ -111,18 +120,28 @@ fun SingleExpense(
                     maxLines = 1,
                     modifier = Modifier.weight(1f),
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.titleMediumEmphasized,
+                    style =
+                        MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.ExtraLight,
+                        ),
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    "KShs. ${expense.amount}",
+                    if (!expensePositive) " - KShs ${expense.amount * -1}" else "KShs ${expense.amount}",
                     color =
                         if (expensePositive) {
                             MaterialTheme.colorScheme.tertiary
                         } else {
                             Color.Red
                         },
-                    style = MaterialTheme.typography.bodyLargeEmphasized,
+                    style =
+                        MaterialTheme
+                            .typography.titleLargeEmphasized
+                            .copy(
+                                fontWeight =
+                                    FontWeight.ExtraBold,
+                                letterSpacing = 1.5.sp,
+                            ),
                 )
             }
         }

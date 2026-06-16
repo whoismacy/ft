@@ -9,7 +9,7 @@ enum class NavigationComponents(
     val route: Routes,
 ) {
     Expense(
-        "Expense",
+        "Expenses",
         R.drawable.outline_family_home_24,
         Routes.ExpensesRoute,
     ),

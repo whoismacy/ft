@@ -11,6 +11,15 @@ sealed interface Routes {
 
     @Serializable
     data object TasksRoute : Routes, NavKey
+
+    @Serializable
+    data object YesterdayExpensesRoute : Routes, NavKey
+
+    @Serializable
+    data object PastWeekExpensesRoute : Routes, NavKey
+
+    @Serializable
+    data object MoreExpensesRoute : Routes, NavKey
 }
 
 class AppNavigator(
