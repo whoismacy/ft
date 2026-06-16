@@ -6,7 +6,7 @@ enum class TabDestinations(
     val value: String,
     val route: Routes,
 ) {
-    TODAY("Today", Routes.ExpensesRoute),
+    TODAY("Today", Routes.TodaysExpensesRoute),
     YESTERDAY("Yesterday", Routes.YesterdayExpensesRoute),
     PAST_WEEK("Past Week", Routes.PastWeekExpensesRoute),
     MORE("More", Routes.MoreExpensesRoute),

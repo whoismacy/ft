@@ -10,10 +10,4 @@ class FtConverters {
 
     @TypeConverter
     fun dateFromLong(time: Long): Date = Date(time)
-
-    @TypeConverter
-    fun fromUuidToString(uuid: UUID): String = uuid.toString()
-
-    @TypeConverter
-    fun uuidFromString(value: String): UUID = UUID.fromString(value)
 }

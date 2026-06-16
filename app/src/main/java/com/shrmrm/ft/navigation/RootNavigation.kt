@@ -90,18 +90,6 @@ fun RootNavigation(viewModel: FtViewModel = hiltViewModel()) {
                             viewModel = viewModel,
                         )
                     }
-
-                    entry<Routes.YesterdayExpensesRoute> {
-                        YesterdayExpensesScreen(viewModel = viewModel)
-                    }
-
-                    entry<Routes.PastWeekExpensesRoute> {
-                        PastWeekExpensesScreen(viewModel = viewModel)
-                    }
-
-                    entry<Routes.MoreExpensesRoute> {
-                        MoreExpensesScreen(viewModel = viewModel)
-                    }
                 },
             transitionSpec = { animation },
             popTransitionSpec = { animation },

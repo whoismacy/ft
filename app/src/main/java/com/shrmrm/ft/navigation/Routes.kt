@@ -13,6 +13,9 @@ sealed interface Routes {
     data object TasksRoute : Routes, NavKey
 
     @Serializable
+    data object TodaysExpensesRoute : Routes, NavKey
+
+    @Serializable
     data object YesterdayExpensesRoute : Routes, NavKey
 
     @Serializable
