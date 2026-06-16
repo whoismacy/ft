@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.ContainedLoadingIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +22,7 @@ import com.shrmrm.ft.data.viewmodels.FtViewModel
 import java.time.LocalDate
 import java.time.ZoneId
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TodayExpensesScreen(
@@ -46,10 +49,12 @@ fun TodayExpensesScreen(
         contentAlignment = Alignment.Center,
     ) {
         if (expenses.isEmpty()) {
-            EmptyState(
-                "No expenses Today!",
-                supportingMessage = "Spend some money to see expenses here",
-            )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                ContainedLoadingIndicator()
+            }
         } else {
             LazyColumn(
                 state = rememberLazyListState(),

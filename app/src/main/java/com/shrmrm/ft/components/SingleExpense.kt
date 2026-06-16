@@ -127,7 +127,7 @@ fun SingleExpense(
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    if (!expensePositive) " - KShs ${expense.amount * -1}" else "KShs ${expense.amount}",
+                    if (!expensePositive) "- KShs ${expense.amount * -1}" else "+ KShs ${expense.amount}",
                     color =
                         if (expensePositive) {
                             MaterialTheme.colorScheme.tertiary

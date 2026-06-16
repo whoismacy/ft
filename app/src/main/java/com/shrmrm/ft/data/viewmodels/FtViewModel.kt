@@ -160,7 +160,7 @@ class FtViewModel
             changeLoading(true)
             try {
                 repo.createExpense(name, amount)
-                triggerEvent("Expense Successfully created🎉")
+                triggerEvent("Expense Successfully added")
                 changeLoading(false)
             } catch (_: Exception) {
                 triggerEvent("An error occurred while creating a new Expense!")

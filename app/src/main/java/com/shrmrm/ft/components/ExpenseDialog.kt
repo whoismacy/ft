@@ -1,5 +1,7 @@
 package com.shrmrm.ft.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +27,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.shrmrm.ft.data.events.EventManager
 import com.shrmrm.ft.data.viewmodels.FtIntent
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 
@@ -41,19 +44,25 @@ fun ExpenseDialog(
     val onExpensePurpose: (String) -> Unit = { expensePurpose = it }
     val onExpenseAmount: (String) -> Unit = { expenseAmount = it }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun createExpense() {
-        val value =
-            if (expenseTypeSpent) {
-                expenseAmount.toInt() * -1
-            } else {
-                expenseAmount.toInt()
-            }
-        viewModel.handleIntent(
-            FtIntent.CreateExpense(
-                name = expensePurpose,
-                amount = value,
-            ),
-        )
+        if (expensePurpose.isEmpty() || expenseAmount.isEmpty()) {
+            EventManager.triggerEvent(EventManager.AppEvent.ShowSnackbar("⚠️ Fill in the Expense Purpose and Amount to Continue"))
+        } else {
+            val value =
+                if (expenseTypeSpent) {
+                    expenseAmount.toInt() * -1
+                } else {
+                    expenseAmount.toInt()
+                }
+            viewModel.handleIntent(
+                FtIntent.CreateExpense(
+                    name = expensePurpose,
+                    amount = value,
+                ),
+            )
+            onDismissRequest()
+        }
     }
 
     Dialog(
@@ -97,7 +106,6 @@ fun ExpenseDialog(
                 ElevatedButton(
                     onClick = {
                         createExpense()
-                        onDismissRequest()
                     },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
@@ -150,7 +158,7 @@ fun ExpenseType(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
