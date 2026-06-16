@@ -1,5 +1,7 @@
 package com.shrmrm.ft.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,18 +17,29 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shrmrm.ft.components.EmptyState
 import com.shrmrm.ft.components.SingleExpense
 import com.shrmrm.ft.data.viewmodels.FtViewModel
-import kotlin.time.Clock
+import java.time.LocalDate
+import java.time.ZoneId
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TodayExpensesScreen(
     viewModel: FtViewModel,
     modifier: Modifier = Modifier,
 ) {
+    val zone = ZoneId.systemDefault()
+    val today = LocalDate.now(zone)
+    val tomorrow = today.plusDays(1)
+
+    val startOfToday = today.atStartOfDay(zone).toInstant()
+    val startOfTomorrow = tomorrow.atStartOfDay(zone).toInstant()
+
     val expenses =
-        viewModel.ftUiViewState
-            .collectAsStateWithLifecycle()
+        viewModel
+            .getExpenseInRange(
+                startOfToday,
+                startOfTomorrow,
+            ).collectAsStateWithLifecycle(emptyList())
             .value
-            .expenses
 
     Box(
         modifier = modifier.fillMaxSize(),

@@ -17,6 +17,7 @@ import com.shrmrm.ft.components.EmptyState
 import com.shrmrm.ft.components.ScreenFab
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 import java.util.Date
+import kotlin.time.Instant
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -30,7 +31,7 @@ fun TaskScreen(viewModel: FtViewModel) {
         state
             .tasks
             .groupBy { it.created }
-            .toSortedMap(compareBy<Date> { it }.reversed())
+            .toSortedMap(compareBy<Instant> { it }.reversed())
     val allTasks = tasksGroupedByDate.values.toList()
 
     Scaffold(

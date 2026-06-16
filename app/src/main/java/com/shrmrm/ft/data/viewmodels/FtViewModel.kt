@@ -1,5 +1,7 @@
 package com.shrmrm.ft.data.viewmodels
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -16,8 +18,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.time.Instant
 import javax.inject.Inject
 
+@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class FtViewModel
     @Inject
@@ -34,6 +38,7 @@ class FtViewModel
             handleIntent(FtIntent.LoadAll)
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         fun handleIntent(intent: FtIntent) {
             viewModelScope.launch(Dispatchers.IO) {
                 when (intent) {
@@ -78,6 +83,11 @@ class FtViewModel
             }
         }
 
+        fun getExpenseInRange(
+            start: Instant,
+            end: Instant,
+        ) = repo.getExpensesInRange(start, end)
+
         private fun changeLoading(state: Boolean) {
             _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = state)
         }
@@ -86,7 +96,7 @@ class FtViewModel
             EventManager.triggerEvent(EventManager.AppEvent.ShowSnackbar(message))
         }
 
-        fun loadAll() {
+        private fun loadAll() {
             combine(
                 repo.loadAllTasks(),
                 repo.loadAllExpenses(),
@@ -142,6 +152,7 @@ class FtViewModel
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         private suspend fun createNewExpense(
             name: String,
             amount: Int,

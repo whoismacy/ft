@@ -3,7 +3,7 @@ package com.shrmrm.ft.data.domain
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Date
+import kotlin.time.Instant
 
 @Entity(
     tableName = "expenses",
@@ -20,5 +20,5 @@ data class Expense(
         name = "expense_date",
         defaultValue = "CURRENT_TIMESTAMP",
     )
-    val date: Date,
+    val date: Instant,
 )

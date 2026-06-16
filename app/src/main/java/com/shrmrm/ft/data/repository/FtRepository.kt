@@ -1,7 +1,9 @@
 package com.shrmrm.ft.data.repository
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.shrmrm.ft.data.db.FtDao
-import java.util.Date
+import java.time.Instant
 import javax.inject.Inject
 
 class FtRepository
@@ -16,6 +18,11 @@ class FtRepository
 
         fun loadAllTasks() = ftDao.loadAllTasks()
 
+        fun getExpensesInRange(
+            start: Instant,
+            end: Instant,
+        ) = ftDao.getExpenseInRange(start, end)
+
         fun updateTask(
             id: Int,
             name: String,
@@ -28,10 +35,11 @@ class FtRepository
         }
 
         // EXPENSES
+        @RequiresApi(Build.VERSION_CODES.O)
         suspend fun createExpense(
             name: String,
             amount: Int,
-            date: Date = Date(),
+            date: Instant = Instant.now(),
         ) {
             ftDao.createExpense(name, amount, date)
         }

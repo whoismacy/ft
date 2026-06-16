@@ -1,13 +1,12 @@
 package com.shrmrm.ft.data.db
 
 import androidx.room.TypeConverter
-import java.util.Date
-import java.util.UUID
+import kotlin.time.Instant
 
 class FtConverters {
     @TypeConverter
-    fun fromDateToLong(date: Date): Long = date.time
+    fun fromInstantToLong(instant: Instant): Long = instant.toEpochMilliseconds()
 
     @TypeConverter
-    fun dateFromLong(time: Long): Date = Date(time)
+    fun instantFromLong(time: Long): Instant = Instant.fromEpochMilliseconds(time)
 }

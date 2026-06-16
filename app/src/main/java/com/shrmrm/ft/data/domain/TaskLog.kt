@@ -3,7 +3,7 @@ package com.shrmrm.ft.data.domain
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import java.util.Date
+import kotlin.time.Instant
 
 @Entity(
     tableName = "tasks_logs",
@@ -27,5 +27,5 @@ data class TaskLog(
     @ColumnInfo(
         name = "log_date",
         defaultValue = "CURRENT_TIMESTAMP",
-    ) val logDate: Date,
+    ) val logDate: Instant,
 )

@@ -1,12 +1,14 @@
 package com.shrmrm.ft.data.db
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.Dao
 import androidx.room.Query
 import com.shrmrm.ft.data.domain.Expense
 import com.shrmrm.ft.data.domain.Task
 import com.shrmrm.ft.data.domain.TaskLog
 import kotlinx.coroutines.flow.Flow
-import java.util.Date
+import java.time.Instant
 
 @Dao
 interface FtDao {
@@ -18,6 +20,12 @@ interface FtDao {
     @Query("SELECT * FROM `tasks`;")
     fun loadAllTasks(): Flow<List<Task>>
 
+    @Query("SELECT * FROM `tasks` WHERE `created_at` >= :start AND `created_at` < :end; ")
+    fun getExpenseInRange(
+        start: Instant,
+        end: Instant,
+    ): Flow<List<Expense>>
+
     @Query("UPDATE `tasks` SET `task_name` = :name WHERE `task_id` = :id")
     fun updateTask(
         id: Int,
@@ -28,11 +36,12 @@ interface FtDao {
     fun deleteTask(id: Int)
 
     // EXPENSES
+    @RequiresApi(Build.VERSION_CODES.O)
     @Query("INSERT INTO 'expenses' (expense_name, expense_amount, expense_date) VALUES (:name, :amount, :date); ")
     suspend fun createExpense(
         name: String,
         amount: Int,
-        date: Date = Date(),
+        date: Instant = Instant.now(),
     )
 
     @Query("SELECT * FROM `expenses`;")
