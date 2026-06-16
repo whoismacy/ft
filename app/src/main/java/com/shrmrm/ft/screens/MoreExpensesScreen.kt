@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -69,19 +70,30 @@ fun MoreExpensesScreen(viewModel: FtViewModel) {
     ) {
         EmptyState(message = "No expenses found")
     } else {
-        Column(
+        LazyColumn(
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .scrollable(
-                        state = rememberScrollState(),
-                        orientation = Orientation.Vertical,
-                    ),
+                    .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            BentoBox(title = "Past 3 Month's Expenses", expenses = expenses3)
-            BentoBox(title = "Past 6 Month's Expenses", expenses = expenses6)
-            BentoBox(title = "Past Year Expenses", expenses = expenses12)
+            item {
+                BentoBox(
+                    title = "Past 3 Month's Expenses",
+                    expenses = expenses3,
+                )
+            }
+            item {
+                BentoBox(
+                    title = "Past 6 Month's Expenses",
+                    expenses = expenses6,
+                )
+            }
+            item {
+                BentoBox(
+                    title = "Past Year Expenses",
+                    expenses = expenses12,
+                )
+            }
         }
     }
 }

@@ -41,26 +41,25 @@ fun BentoBox(
     expenses: List<Expense>,
     modifier: Modifier = Modifier,
 ) {
-    val highest = expenses.minByOrNull { it.amount }!!
+    val highest = expenses.minByOrNull { it.amount }!!.amount
     val sumIn = expenses.filter { it.amount > 0 }.sumOf { it.amount }
     val sumOut = expenses.filter { it.amount < 0 }.sumOf { it.amount }
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(title, style = MaterialTheme.typography.displayMedium)
+        Text(title, style = MaterialTheme.typography.titleLargeEmphasized)
         Column(
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .verticalScroll(rememberScrollState()),
+                    .fillMaxWidth()
+                    .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             BentoCard(
-                title = "Highest",
+                title = "Highest Spent",
                 value = "$highest",
                 color = Colors.YELLOW,
                 modifier =
@@ -136,7 +135,7 @@ fun BentoCard(
             Text(
                 text = title.uppercase(),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
                 fontSize = 12.sp,
                 letterSpacing = 1.6.sp,
                 fontWeight = FontWeight.Bold,

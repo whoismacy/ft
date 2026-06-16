@@ -36,6 +36,6 @@ fun PastWeekExpensesScreen(viewModel: FtViewModel) {
     if (expenses.isEmpty()) {
         EmptyState(message = "No expenses found")
     } else {
-        BentoBox(title = "Yesterday's Expenses", expenses = expenses)
+        BentoBox(title = "Past Week's Expenses", expenses = expenses)
     }
 }
