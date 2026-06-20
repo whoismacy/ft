@@ -2,13 +2,14 @@ package com.shrmrm.ft.components
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -30,13 +31,21 @@ fun SingleTask(
     viewModel: FtViewModel,
     modifier: Modifier = Modifier,
 ) {
-    ElevatedCard(
+    Card(
+        border =
+            BorderStroke(
+                width = 1.dp,
+                color =
+                    MaterialTheme
+                        .colorScheme.outlineVariant
+                        .copy(alpha = 0.2f),
+            ),
         colors =
             CardDefaults
                 .cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation =
             CardDefaults
-                .cardElevation(1.dp),
+                .cardElevation(.5.dp),
         modifier =
             modifier
                 .fillMaxWidth()
@@ -66,8 +75,9 @@ fun SingleTask(
             }, selected = false)
             Text(
                 task.name,
+                modifier = Modifier.weight(1f),
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyMediumEmphasized,
+                style = MaterialTheme.typography.bodyLargeEmphasized,
             )
         }
     }

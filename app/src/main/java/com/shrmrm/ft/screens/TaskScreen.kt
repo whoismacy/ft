@@ -27,7 +27,6 @@ import com.shrmrm.ft.components.SingleTask
 import com.shrmrm.ft.components.TaskDialog
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 import com.shrmrm.ft.utils.convertFromInstant
-import java.time.Instant
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -41,8 +40,7 @@ fun TaskScreen(viewModel: FtViewModel) {
     val tasksGroupedByDate =
         state
             .tasks
-            .groupBy { it.created }
-            .toSortedMap(compareBy<Instant> { it }.reversed())
+            .groupBy { convertFromInstant(it.created) }
     var isFabActive by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
@@ -72,10 +70,10 @@ fun TaskScreen(viewModel: FtViewModel) {
                     tasksGroupedByDate.forEach { (date, tasks) ->
                         item {
                             Text(
-                                convertFromInstant(date),
+                                date,
                                 modifier = Modifier.fillMaxWidth(),
                                 textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.displaySmall,
+                                style = MaterialTheme.typography.titleLargeEmphasized,
                             )
                         }
                         items(tasks) { task ->
