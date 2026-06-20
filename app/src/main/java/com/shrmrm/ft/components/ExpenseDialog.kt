@@ -109,7 +109,7 @@ fun ExpenseDialog(
                     },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Create")
+                    Text("Create expense")
                 }
             }
         }

@@ -1,5 +1,7 @@
 package com.shrmrm.ft.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -28,6 +30,7 @@ import com.shrmrm.ft.components.TabDestinations
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 import com.shrmrm.ft.navigation.Routes
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ExpenseScreen(viewModel: FtViewModel) {
     var dialogActive by rememberSaveable { mutableStateOf(false) }

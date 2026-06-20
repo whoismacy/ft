@@ -1,5 +1,7 @@
 package com.shrmrm.ft.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -23,15 +25,13 @@ import com.shrmrm.ft.components.NavigationComponents
 import com.shrmrm.ft.data.events.EventManager
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 import com.shrmrm.ft.screens.ExpenseScreen
-import com.shrmrm.ft.screens.MoreExpensesScreen
-import com.shrmrm.ft.screens.PastWeekExpensesScreen
 import com.shrmrm.ft.screens.TaskScreen
-import com.shrmrm.ft.screens.YesterdayExpensesScreen
 import kotlinx.coroutines.launch
 
 private val animation =
     fadeIn(tween(1000)) togetherWith fadeOut(tween(1000))
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RootNavigation(viewModel: FtViewModel = hiltViewModel()) {
     val coroutineScope = rememberCoroutineScope()

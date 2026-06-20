@@ -49,12 +49,10 @@ fun TodayExpensesScreen(
         contentAlignment = Alignment.Center,
     ) {
         if (expenses.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                ContainedLoadingIndicator()
-            }
+            EmptyState(
+                message = "No expenses found",
+                supportingMessage = "Spend money today to see your expenses",
+            )
         } else {
             LazyColumn(
                 state = rememberLazyListState(),

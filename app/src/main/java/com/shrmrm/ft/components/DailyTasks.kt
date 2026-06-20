@@ -1,11 +1,11 @@
 package com.shrmrm.ft.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -19,24 +19,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.shrmrm.ft.data.domain.Task
+import com.shrmrm.ft.data.domain.TaskState
+import com.shrmrm.ft.data.viewmodels.FtIntent
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 
-@Composable
-fun DailyTasks(
-    tasks: List<Task>,
-    viewModel: FtViewModel,
-    modifier: Modifier = Modifier,
-) {
-    Row(modifier = modifier.fillMaxWidth()) {
-        Text("${tasks[0].created}")
-        LazyColumn(modifier = modifier.fillMaxWidth()) {
-            items(tasks) {
-                SingleTask(it, viewModel)
-            }
-        }
-    }
-}
-
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SingleTask(
     task: Task,
@@ -53,15 +40,30 @@ fun SingleTask(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp, horizontal = 12.dp)
-                .clip(RoundedCornerShape(8.dp)),
+                .padding(
+                    vertical = 8.dp,
+                    horizontal = 12.dp,
+                ).clip(RoundedCornerShape(8.dp)),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier =
+                Modifier.fillMaxWidth().padding(
+                    vertical = 8.dp,
+                    horizontal = 12.dp,
+                ),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceAround,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            RadioButton(onClick = {}, selected = false)
+            RadioButton(onClick = {
+                viewModel
+                    .handleIntent(
+                        FtIntent
+                            .CompleteTask(
+                                task.id,
+                                TaskState.DONE.name,
+                            ),
+                    )
+            }, selected = false)
             Text(
                 task.name,
                 overflow = TextOverflow.Ellipsis,

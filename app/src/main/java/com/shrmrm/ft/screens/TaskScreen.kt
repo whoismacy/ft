@@ -8,16 +8,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.shrmrm.ft.components.DailyTasks
 import com.shrmrm.ft.components.EmptyState
 import com.shrmrm.ft.components.ScreenFab
+import com.shrmrm.ft.components.SingleTask
+import com.shrmrm.ft.components.TaskDialog
 import com.shrmrm.ft.data.viewmodels.FtViewModel
+import com.shrmrm.ft.utils.convertFromInstant
 import java.time.Instant
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -34,14 +43,17 @@ fun TaskScreen(viewModel: FtViewModel) {
             .tasks
             .groupBy { it.created }
             .toSortedMap(compareBy<Instant> { it }.reversed())
-    val allTasks = tasksGroupedByDate.values.toList()
+    var isFabActive by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         snackbarHost = {
             SnackbarHost(viewModel.snackBarHost)
         },
         floatingActionButton = {
-            ScreenFab(onClick = {})
+            ScreenFab(
+                text = "Add Task",
+                onClick = { isFabActive = true },
+            )
         },
     ) { innerPadding ->
         Box(
@@ -57,11 +69,25 @@ fun TaskScreen(viewModel: FtViewModel) {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    items(allTasks) {
-                        DailyTasks(it, viewModel)
+                    tasksGroupedByDate.forEach { (date, tasks) ->
+                        item {
+                            Text(
+                                convertFromInstant(date),
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.displaySmall,
+                            )
+                        }
+                        items(tasks) { task ->
+                            SingleTask(task, viewModel)
+                        }
                     }
                 }
             }
+        }
+
+        if (isFabActive) {
+            TaskDialog(viewModel = viewModel) { isFabActive = false }
         }
     }
 }

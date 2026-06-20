@@ -14,8 +14,12 @@ import java.time.Instant
 interface FtDao {
     // TASKS
 
-    @Query("INSERT INTO `tasks` (task_name) VALUES (:name);")
-    suspend fun createTask(name: String)
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Query("INSERT INTO `tasks` (task_name, created_at) VALUES (:name, :date);")
+    suspend fun createTask(
+        name: String,
+        date: Instant = Instant.now(),
+    )
 
     @Query("SELECT * FROM `tasks`;")
     fun loadAllTasks(): Flow<List<Task>>
