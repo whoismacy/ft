@@ -10,6 +10,6 @@ import java.time.format.DateTimeFormatter
 fun convertFromInstant(time: Instant): String {
     val zone = ZoneId.systemDefault()
     val localDateTime = time.atZone(zone).toLocalDateTime()
-    val formatter = DateTimeFormatter.ofPattern("EEE MMM d, yyyy")
+    val formatter = DateTimeFormatter.ofPattern("MMM d")
     return localDateTime.format(formatter)
 }

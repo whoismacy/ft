@@ -21,6 +21,9 @@ interface FtDao {
         date: Instant = Instant.now(),
     )
 
+    @Query("SELECT * FROM `tasks` ORDER BY `created_at` ASC LIMIT 1;")
+    suspend fun getOldestTask(): Task
+
     @Query("SELECT * FROM `tasks`;")
     fun loadAllTasks(): Flow<List<Task>>
 

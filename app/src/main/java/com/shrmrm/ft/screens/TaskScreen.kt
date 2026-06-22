@@ -3,7 +3,9 @@ package com.shrmrm.ft.screens
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,7 +21,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shrmrm.ft.components.EmptyState
 import com.shrmrm.ft.components.ScreenFab
@@ -27,6 +31,8 @@ import com.shrmrm.ft.components.SingleTask
 import com.shrmrm.ft.components.TaskDialog
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 import com.shrmrm.ft.utils.convertFromInstant
+import java.time.LocalDate
+import java.time.ZoneId
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -37,10 +43,7 @@ fun TaskScreen(viewModel: FtViewModel) {
             .ftUiViewState
             .collectAsStateWithLifecycle()
             .value
-    val tasksGroupedByDate =
-        state
-            .tasks
-            .groupBy { convertFromInstant(it.created) }
+    val tasks = state.tasks
     var isFabActive by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
@@ -64,21 +67,31 @@ fun TaskScreen(viewModel: FtViewModel) {
                     supportingMessage = "Create new Tasks to see them here",
                 )
             } else {
+                val zone = ZoneId.systemDefault()
+                val today = LocalDate.now().atStartOfDay(zone)
                 LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
                 ) {
-                    tasksGroupedByDate.forEach { (date, tasks) ->
-                        item {
-                            Text(
-                                date,
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.titleLargeEmphasized,
-                            )
-                        }
-                        items(tasks) { task ->
-                            SingleTask(task, viewModel)
-                        }
+                    item {
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            "Tasks from" +
+                                convertFromInstant(today.toInstant()) +
+                                " to ${convertFromInstant(today.minusDays(5).toInstant())}",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            style =
+                                MaterialTheme
+                                    .typography.bodyLargeEmphasized
+                                    .copy(fontWeight = FontWeight.ExtraBold),
+                        )
+                        Spacer(Modifier.height(24.dp))
+                    }
+                    items(tasks) { task ->
+                        SingleTask(task, viewModel)
                     }
                 }
             }
