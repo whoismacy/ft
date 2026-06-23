@@ -2,7 +2,9 @@ package com.shrmrm.ft.screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -69,29 +71,32 @@ fun TaskScreen(viewModel: FtViewModel) {
             } else {
                 val zone = ZoneId.systemDefault()
                 val today = LocalDate.now().atStartOfDay(zone)
-                LazyColumn(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp),
+                Column(
+                    verticalArrangement =
+                        Arrangement.spacedBy(24.dp),
                 ) {
-                    item {
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            "Tasks from" +
-                                convertFromInstant(today.toInstant()) +
-                                " to ${convertFromInstant(today.minusDays(5).toInstant())}",
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center,
-                            style =
-                                MaterialTheme
-                                    .typography.bodyLargeEmphasized
-                                    .copy(fontWeight = FontWeight.ExtraBold),
-                        )
-                        Spacer(Modifier.height(24.dp))
-                    }
-                    items(tasks) { task ->
-                        SingleTask(task, viewModel)
+                    Text(
+                        "Tasks from " +
+                            convertFromInstant(today.toInstant()) +
+                            " to ${convertFromInstant(today.minusDays(5).toInstant())}",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        style =
+                            MaterialTheme
+                                .typography.bodyLargeEmphasized
+                                .copy(fontWeight = FontWeight.ExtraBold),
+                    )
+
+                    LazyColumn(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(24.dp),
+                    ) {
+                        items(tasks) { task ->
+                            SingleTask(task, viewModel)
+                        }
                     }
                 }
             }

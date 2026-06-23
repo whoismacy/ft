@@ -6,6 +6,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.shrmrm.ft.data.domain.TaskLog
 import com.shrmrm.ft.data.domain.TaskState
 import com.shrmrm.ft.data.events.EventManager
 import com.shrmrm.ft.data.repository.FtRepository
@@ -75,8 +76,7 @@ class FtViewModel
 
                     is FtIntent.CompleteTask -> {
                         completeTask(
-                            intent.id,
-                            intent.status,
+                            intent.taskLog,
                         )
                     }
                 }
@@ -88,11 +88,13 @@ class FtViewModel
             end: Instant,
         ) = repo.getExpensesInRange(start, end)
 
+        fun getTaskLog(id: Int) = repo.getTaskLog(id)
+
         private fun changeLoading(state: Boolean) {
             _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = state)
         }
 
-        private fun triggerEvent(message: String) {
+        fun triggerEvent(message: String) {
             EventManager.triggerEvent(EventManager.AppEvent.ShowSnackbar(message))
         }
 
@@ -194,22 +196,19 @@ class FtViewModel
             }
         }
 
-        private fun completeTask(
-            id: Int,
-            status: String,
-        ) {
+        private fun completeTask(taskLog: TaskLog) {
             changeLoading(true)
             val validStatus =
                 TaskState
                     .entries
                     .map { it.name }
 
-            if (status !in validStatus) {
+            if (taskLog.status !in validStatus) {
                 triggerEvent("An error occurred while completing Task!")
             } else {
                 viewModelScope.launch {
                     try {
-                        repo.completeTask(id, status)
+                        repo.completeTask(taskLog)
                         changeLoading(false)
                     } catch (_: Exception) {
                         triggerEvent("An error occurred while completing Task!")

@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Upsert
 import com.shrmrm.ft.data.domain.Expense
 import com.shrmrm.ft.data.domain.Task
 import com.shrmrm.ft.data.domain.TaskLog
@@ -21,17 +22,8 @@ interface FtDao {
         date: Instant = Instant.now(),
     )
 
-    @Query("SELECT * FROM `tasks` ORDER BY `created_at` ASC LIMIT 1;")
-    suspend fun getOldestTask(): Task
-
     @Query("SELECT * FROM `tasks`;")
     fun loadAllTasks(): Flow<List<Task>>
-
-    @Query("SELECT * FROM `expenses` WHERE `expense_date` >= :start AND `expense_date` < :end; ")
-    fun getExpenseInRange(
-        start: Instant,
-        end: Instant,
-    ): Flow<List<Expense>>
 
     @Query("UPDATE `tasks` SET `task_name` = :name WHERE `task_id` = :id")
     fun updateTask(
@@ -51,6 +43,12 @@ interface FtDao {
         date: Instant = Instant.now(),
     )
 
+    @Query("SELECT * FROM `expenses` WHERE `expense_date` >= :start AND `expense_date` < :end; ")
+    fun getExpenseInRange(
+        start: Instant,
+        end: Instant,
+    ): Flow<List<Expense>>
+
     @Query("SELECT * FROM `expenses`;")
     fun loadAllExpenses(): Flow<List<Expense>>
 
@@ -67,9 +65,9 @@ interface FtDao {
     @Query("SELECT * FROM `tasks_logs`;")
     fun loadAllTaskLogs(): Flow<List<TaskLog>>
 
-    @Query("INSERT INTO `tasks_logs` (task_log_id, task_status) VALUES (:id, :status);")
-    suspend fun completeTask(
-        id: Int,
-        status: String = "DONE",
-    )
+    @Query("SELECT * FROM `tasks_logs` WHERE `task_log_id` = :id;")
+    fun getTaskLog(id: Int): Flow<TaskLog?>
+
+    @Upsert
+    suspend fun completeTask(taskLog: TaskLog)
 }

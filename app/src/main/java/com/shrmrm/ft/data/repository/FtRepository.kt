@@ -3,6 +3,7 @@ package com.shrmrm.ft.data.repository
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.shrmrm.ft.data.db.FtDao
+import com.shrmrm.ft.data.domain.TaskLog
 import java.time.Instant
 import javax.inject.Inject
 
@@ -12,6 +13,7 @@ class FtRepository
         private val ftDao: FtDao,
     ) {
         // TASKS
+        @RequiresApi(Build.VERSION_CODES.O)
         suspend fun createTask(name: String) {
             ftDao.createTask(name)
         }
@@ -58,13 +60,11 @@ class FtRepository
         }
 
         // TASK LOGS
+        fun getTaskLog(id: Int) = ftDao.getTaskLog(id)
 
         fun loadAllTaskLogs() = ftDao.loadAllTaskLogs()
 
-        suspend fun completeTask(
-            id: Int,
-            status: String = "DONE",
-        ) {
-            ftDao.completeTask(id, status)
+        suspend fun completeTask(taskLog: TaskLog) {
+            ftDao.completeTask(taskLog)
         }
     }

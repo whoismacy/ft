@@ -3,6 +3,7 @@ package com.shrmrm.ft.components
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -12,19 +13,27 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shrmrm.ft.R
 import com.shrmrm.ft.data.domain.Task
+import com.shrmrm.ft.data.domain.TaskLog
+import com.shrmrm.ft.data.domain.TaskState
 import com.shrmrm.ft.data.events.EventManager
+import com.shrmrm.ft.data.viewmodels.FtIntent
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 import com.shrmrm.ft.utils.convertFromInstant
 import java.time.Instant
@@ -72,23 +81,26 @@ fun SingleTask(
                 style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1,
             )
-            DayEntries(task)
+            DayEntries(task, viewModel)
         }
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DayEntries(task: Task) {
+fun DayEntries(
+    task: Task,
+    viewModel: FtViewModel,
+) {
     val zone = ZoneId.systemDefault()
     val today = LocalDate.now(zone)
 
     Row(
         modifier =
             Modifier
-                .fillMaxWidth(0.5f)
+                .fillMaxWidth(0.6f)
                 .padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         for (i in 0..<5) {
             val day =
@@ -99,78 +111,218 @@ fun DayEntries(task: Task) {
             DayEntry(
                 date = day,
                 task = task,
+                viewModel,
             )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayEntry(
     date: Instant,
     task: Task,
+    viewModel: FtViewModel,
 ) {
+    val zone = ZoneId.systemDefault()
+    val cellDate = date.atZone(zone).toLocalDate()
+    val taskDate = task.created.atZone(zone).toLocalDate()
+    val today = LocalDate.now(zone)
+
     val iconSize = 16.dp
+
+    val isLoading =
+        viewModel.ftUiViewState
+            .collectAsStateWithLifecycle()
+            .value.isLoading
+    val taskLog =
+        viewModel
+            .getTaskLog(task.id)
+            .collectAsStateWithLifecycle(null)
+            .value
+
+    val onTap = {
+        viewModel
+            .handleIntent(
+                FtIntent
+                    .CompleteTask(
+                        TaskLog(
+                            id = task.id,
+                            status = TaskState.DONE.status,
+                            logDate = taskLog?.logDate!!,
+                        ),
+                    ),
+            )
+    }
+    val onDoubleTap = {
+        viewModel
+            .handleIntent(
+                FtIntent
+                    .CompleteTask(
+                        TaskLog(
+                            id = task.id,
+                            status = TaskState.HOLD.status,
+                            logDate = taskLog?.logDate!!,
+                        ),
+                    ),
+            )
+    }
+    val onLongPress = {
+        viewModel
+            .handleIntent(
+                FtIntent
+                    .CompleteTask(
+                        TaskLog(
+                            id = task.id,
+                            status = TaskState.FAILED.status,
+                            logDate = taskLog?.logDate!!,
+                        ),
+                    ),
+            )
+    }
 
     Box(
         contentAlignment = Alignment.Center,
     ) {
-        when {
-            convertFromInstant(date) == convertFromInstant(task.created) -> {
-                Icon(
-                    painter = painterResource(R.drawable.baseline_question_mark_24),
-                    contentDescription = null,
-                    modifier =
-                        Modifier
-                            .size(iconSize)
-                            .clickable(onClick = {
-                                EventManager
-                                    .triggerEvent(
-                                        EventManager
-                                            .AppEvent
-                                            .ShowSnackbar("Clicked on date ${convertFromInstant(date)}"),
-                                    )
-                            }),
-                )
-            }
+        if (isLoading) {
+            LoadingIndicator(modifier = Modifier.size(iconSize))
+        } else {
+            when {
+                cellDate == today -> {
+                    when (taskLog?.status) {
+                        TaskState.DONE.status -> {
+                            DisplayIcon(
+                                painter = TaskState.DONE.icon,
+                                onTap = onTap,
+                                onDoubleTap = onDoubleTap,
+                                onLongPress = onLongPress,
+                            )
+                        }
 
-            task.created > date -> {
-                Icon(
-                    painter = painterResource(R.drawable.baseline_edit_24),
-                    contentDescription = null,
-                    modifier =
-                        Modifier
-                            .size(iconSize)
-                            .clickable(onClick = {
-                                EventManager
-                                    .triggerEvent(
-                                        EventManager
-                                            .AppEvent
-                                            .ShowSnackbar("Clicked on date ${convertFromInstant(date)}"),
-                                    )
-                            }),
-                    tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f),
-                )
-            }
+                        TaskState.HOLD.status -> {
+                            DisplayIcon(
+                                painter = TaskState.HOLD.icon,
+                                onTap = onTap,
+                                onDoubleTap = onDoubleTap,
+                                onLongPress = onLongPress,
+                            )
+                        }
 
-            else -> {
-                Icon(
-                    painter = painterResource(R.drawable.outline_hourglass_empty_24),
-                    contentDescription = null,
-                    modifier =
-                        Modifier
-                            .size(iconSize)
-                            .clickable(onClick = {
-                                EventManager
-                                    .triggerEvent(
-                                        EventManager
-                                            .AppEvent
-                                            .ShowSnackbar("Clicked on date ${convertFromInstant(date)}"),
-                                    )
-                            }),
-                    tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f),
-                )
+                        TaskState.FAILED.status -> {
+                            DisplayIcon(
+                                painter = TaskState.FAILED.icon,
+                                onTap = onTap,
+                                onDoubleTap = onDoubleTap,
+                                onLongPress = onLongPress,
+                            )
+                        }
+
+                        else -> {
+                            DisplayIcon(painter = R.drawable.baseline_question_mark_24)
+                        }
+                    }
+                }
+
+                cellDate.isBefore(taskDate) -> {
+                    DisplayIcon(
+                        painter = R.drawable.baseline_dangerous_24,
+                        onClick = {
+                            viewModel
+                                .triggerEvent(
+                                    "Error⚠️: Task did not exist on" +
+                                        " ${convertFromInstant(date)}",
+                                )
+                        },
+                    )
+                }
+
+                else -> {
+                    val errorMessage = "Error⚠️: Cannot modify already passed task."
+                    when (taskLog?.status) {
+                        TaskState.DONE.status -> {
+                            DisplayIcon(
+                                painter = TaskState.DONE.icon,
+                                onClick = {
+                                    viewModel
+                                        .triggerEvent(errorMessage)
+                                },
+                            )
+                        }
+
+                        TaskState.HOLD.status -> {
+                            DisplayIcon(
+                                painter = TaskState.DONE.icon,
+                                onClick = {
+                                    viewModel
+                                        .triggerEvent(errorMessage)
+                                },
+                            )
+                        }
+
+                        TaskState.FAILED.status -> {
+                            DisplayIcon(
+                                painter = TaskState.DONE.icon,
+                                onClick = {
+                                    viewModel
+                                        .triggerEvent(errorMessage)
+                                },
+                            )
+                        }
+
+                        else -> {
+                            DisplayIcon(
+                                painter = R.drawable.baseline_edit_24,
+                                onClick = {
+                                    viewModel
+                                        .triggerEvent(errorMessage)
+                                },
+                            )
+                        }
+                    }
+                }
             }
         }
+    }
+}
+
+@Composable
+fun DisplayIcon(
+    painter: Int,
+    onTap: (() -> Unit)? = null,
+    onDoubleTap: (() -> Unit)? = null,
+    onLongPress: (() -> Unit)? = null,
+    onClick: (() -> Unit)? = null,
+    contentDescription: String? = null,
+) {
+    val iconSize = 12.dp
+    val pointerModifier =
+        Modifier
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { onTap?.invoke() },
+                    onDoubleTap = { onDoubleTap?.invoke() },
+                    onLongPress = { onLongPress?.invoke() },
+                )
+            }
+    val clickModifier =
+        Modifier
+            .clickable(onClick = { onClick?.invoke() })
+    val modifier = if (onClick != null) pointerModifier else clickModifier
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            painter = painterResource(painter),
+            contentDescription = contentDescription,
+            modifier = Modifier.size(16.dp),
+            tint =
+                if (onClick != null) {
+                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
+                } else {
+                    MaterialTheme.colorScheme.secondary
+                },
+        )
     }
 }
