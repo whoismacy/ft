@@ -75,15 +75,15 @@ fun TaskScreen(viewModel: FtViewModel) {
                     verticalArrangement =
                         Arrangement.spacedBy(24.dp),
                 ) {
+                    Spacer(Modifier.height(24.dp))
                     Text(
-                        "Tasks from " +
-                            convertFromInstant(today.toInstant()) +
-                            " to ${convertFromInstant(today.minusDays(5).toInstant())}",
+                        convertFromInstant(today.toInstant()) +
+                            " - ${convertFromInstant(today.minusDays(4).toInstant())}",
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                         style =
                             MaterialTheme
-                                .typography.bodyLargeEmphasized
+                                .typography.displaySmall
                                 .copy(fontWeight = FontWeight.ExtraBold),
                     )
 

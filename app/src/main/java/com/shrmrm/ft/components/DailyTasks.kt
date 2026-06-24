@@ -1,11 +1,11 @@
 package com.shrmrm.ft.components
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,10 +19,11 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -32,7 +33,6 @@ import com.shrmrm.ft.R
 import com.shrmrm.ft.data.domain.Task
 import com.shrmrm.ft.data.domain.TaskLog
 import com.shrmrm.ft.data.domain.TaskState
-import com.shrmrm.ft.data.events.EventManager
 import com.shrmrm.ft.data.viewmodels.FtIntent
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 import com.shrmrm.ft.utils.convertFromInstant
@@ -102,7 +102,7 @@ fun DayEntries(
                 .padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        for (i in 0..<5) {
+        for (i in 0..4) {
             val day =
                 today
                     .minusDays(i.toLong())
@@ -136,6 +136,7 @@ fun DayEntry(
         viewModel.ftUiViewState
             .collectAsStateWithLifecycle()
             .value.isLoading
+
     val taskLog =
         viewModel
             .getTaskLog(task.id)
@@ -143,6 +144,7 @@ fun DayEntry(
             .value
 
     val onTap = {
+        Log.e("DAILYTASKS", "ON TAP METHOD RECEIVED for ${task.id}")
         viewModel
             .handleIntent(
                 FtIntent
@@ -150,12 +152,13 @@ fun DayEntry(
                         TaskLog(
                             id = task.id,
                             status = TaskState.DONE.status,
-                            logDate = taskLog?.logDate!!,
+                            logDate = Instant.now(),
                         ),
                     ),
             )
     }
     val onDoubleTap = {
+        Log.e("DAILYTASKS", "ON DOUBLE TAP METHOD RECEIVED for ${task.id}")
         viewModel
             .handleIntent(
                 FtIntent
@@ -163,12 +166,13 @@ fun DayEntry(
                         TaskLog(
                             id = task.id,
                             status = TaskState.HOLD.status,
-                            logDate = taskLog?.logDate!!,
+                            logDate = Instant.now(),
                         ),
                     ),
             )
     }
     val onLongPress = {
+        Log.e("DAILYTASKS", "ON LONG PRESS METHOD RECEIVED for ${task.id}")
         viewModel
             .handleIntent(
                 FtIntent
@@ -176,109 +180,111 @@ fun DayEntry(
                         TaskLog(
                             id = task.id,
                             status = TaskState.FAILED.status,
-                            logDate = taskLog?.logDate!!,
+                            logDate = Instant.now(),
                         ),
                     ),
             )
     }
 
-    Box(
-        contentAlignment = Alignment.Center,
-    ) {
-        if (isLoading) {
-            LoadingIndicator(modifier = Modifier.size(iconSize))
-        } else {
-            when {
-                cellDate == today -> {
-                    when (taskLog?.status) {
-                        TaskState.DONE.status -> {
-                            DisplayIcon(
-                                painter = TaskState.DONE.icon,
-                                onTap = onTap,
-                                onDoubleTap = onDoubleTap,
-                                onLongPress = onLongPress,
-                            )
-                        }
+    if (isLoading) {
+        LoadingIndicator(modifier = Modifier.size(iconSize))
+    } else {
+        when {
+            cellDate == today -> {
+                Log.e("DAILY TASKS SCREEN When 1", "${taskLog?.status}")
+                when (taskLog?.status) {
+                    TaskState.DONE.status -> {
+                        DisplayIcon(
+                            painter = TaskState.DONE.icon,
+                            onTap = onTap,
+                            onDoubleTap = onDoubleTap,
+                            onLongPress = onLongPress,
+                        )
+                    }
 
-                        TaskState.HOLD.status -> {
-                            DisplayIcon(
-                                painter = TaskState.HOLD.icon,
-                                onTap = onTap,
-                                onDoubleTap = onDoubleTap,
-                                onLongPress = onLongPress,
-                            )
-                        }
+                    TaskState.HOLD.status -> {
+                        DisplayIcon(
+                            painter = TaskState.HOLD.icon,
+                            onTap = onTap,
+                            onDoubleTap = onDoubleTap,
+                            onLongPress = onLongPress,
+                        )
+                    }
 
-                        TaskState.FAILED.status -> {
-                            DisplayIcon(
-                                painter = TaskState.FAILED.icon,
-                                onTap = onTap,
-                                onDoubleTap = onDoubleTap,
-                                onLongPress = onLongPress,
-                            )
-                        }
+                    TaskState.FAILED.status -> {
+                        DisplayIcon(
+                            painter = TaskState.FAILED.icon,
+                            onTap = onTap,
+                            onDoubleTap = onDoubleTap,
+                            onLongPress = onLongPress,
+                        )
+                    }
 
-                        else -> {
-                            DisplayIcon(painter = R.drawable.baseline_question_mark_24)
-                        }
+                    else -> {
+                        DisplayIcon(
+                            painter = R.drawable.baseline_question_mark_24,
+                            onTap = onTap,
+                            onDoubleTap = onDoubleTap,
+                            onLongPress = onLongPress,
+                        )
                     }
                 }
+            }
 
-                cellDate.isBefore(taskDate) -> {
-                    DisplayIcon(
-                        painter = R.drawable.baseline_dangerous_24,
-                        onClick = {
-                            viewModel
-                                .triggerEvent(
-                                    "Error⚠️: Task did not exist on" +
-                                        " ${convertFromInstant(date)}",
-                                )
-                        },
-                    )
-                }
-
-                else -> {
-                    val errorMessage = "Error⚠️: Cannot modify already passed task."
-                    when (taskLog?.status) {
-                        TaskState.DONE.status -> {
-                            DisplayIcon(
-                                painter = TaskState.DONE.icon,
-                                onClick = {
-                                    viewModel
-                                        .triggerEvent(errorMessage)
-                                },
+            cellDate.isBefore(taskDate) -> {
+                DisplayIcon(
+                    painter = R.drawable.baseline_dangerous_24,
+                    onClick = {
+                        viewModel
+                            .triggerEvent(
+                                "Error⚠️: Task did not exist on" +
+                                    " ${convertFromInstant(date)}",
                             )
-                        }
+                    },
+                )
+            }
 
-                        TaskState.HOLD.status -> {
-                            DisplayIcon(
-                                painter = TaskState.DONE.icon,
-                                onClick = {
-                                    viewModel
-                                        .triggerEvent(errorMessage)
-                                },
-                            )
-                        }
+            else -> {
+                val errorMessage = "Error⚠️: Cannot modify already passed task."
+                when (taskLog?.status) {
+                    TaskState.DONE.status -> {
+                        DisplayIcon(
+                            painter = TaskState.DONE.icon,
+                            onClick = {
+                                viewModel
+                                    .triggerEvent(errorMessage)
+                            },
+                        )
+                    }
 
-                        TaskState.FAILED.status -> {
-                            DisplayIcon(
-                                painter = TaskState.DONE.icon,
-                                onClick = {
-                                    viewModel
-                                        .triggerEvent(errorMessage)
-                                },
-                            )
-                        }
+                    TaskState.HOLD.status -> {
+                        DisplayIcon(
+                            painter = TaskState.HOLD.icon,
+                            onClick = {
+                                viewModel
+                                    .triggerEvent(errorMessage)
+                            },
+                        )
+                    }
 
-                        else -> {
-                            DisplayIcon(
-                                painter = R.drawable.baseline_edit_24,
-                                onClick = {
-                                    viewModel
-                                        .triggerEvent(errorMessage)
-                                },
-                            )
-                        }
+                    TaskState.FAILED.status -> {
+                        DisplayIcon(
+                            painter = TaskState.FAILED.icon,
+                            onClick = {
+                                viewModel
+                                    .triggerEvent(errorMessage)
+                            },
+                        )
+                    }
+
+                    else -> {
+                        DisplayIcon(
+                            painter = R.drawable.baseline_edit_24,
+                            onClick = {
+                                viewModel
+                                    .triggerEvent(errorMessage)
+                            },
+                        )
                     }
                 }
             }
@@ -295,34 +301,62 @@ fun DisplayIcon(
     onClick: (() -> Unit)? = null,
     contentDescription: String? = null,
 ) {
-    val iconSize = 12.dp
-    val pointerModifier =
-        Modifier
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = { onTap?.invoke() },
-                    onDoubleTap = { onDoubleTap?.invoke() },
-                    onLongPress = { onLongPress?.invoke() },
-                )
+    val currentOnTap by rememberUpdatedState(onTap)
+    val currentOnDoubleTap by rememberUpdatedState(onDoubleTap)
+    val currentOnLongPress by rememberUpdatedState(onLongPress)
+    val usePointerInput =
+        onTap != null ||
+            onDoubleTap != null ||
+            onLongPress != null
+    val interactionModifier =
+        when {
+            usePointerInput -> {
+                Modifier.pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap =
+                            if (onTap != null) {
+                                { _ -> currentOnTap?.invoke() }
+                            } else {
+                                null
+                            },
+                        onDoubleTap =
+                            if (onDoubleTap != null) {
+                                { _ -> currentOnDoubleTap?.invoke() }
+                            } else {
+                                null
+                            },
+                        onLongPress =
+                            if (onLongPress != null) {
+                                { _ -> currentOnLongPress?.invoke() }
+                            } else {
+                                null
+                            },
+                    )
+                }
             }
-    val clickModifier =
-        Modifier
-            .clickable(onClick = { onClick?.invoke() })
-    val modifier = if (onClick != null) pointerModifier else clickModifier
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(
-            painter = painterResource(painter),
-            contentDescription = contentDescription,
-            modifier = Modifier.size(16.dp),
-            tint =
-                if (onClick != null) {
-                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
-                } else {
-                    MaterialTheme.colorScheme.secondary
-                },
-        )
-    }
+
+            onClick != null -> {
+                Modifier.clickable(onClick = onClick)
+            }
+
+            else -> {
+                Modifier
+            }
+        }
+    Icon(
+        painter = painterResource(painter),
+        contentDescription = contentDescription,
+        modifier =
+            interactionModifier.then(
+                Modifier
+                    .size(24.dp)
+                    .padding(8.dp),
+            ),
+        tint =
+            if (onClick != null) {
+                MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
+            } else {
+                MaterialTheme.colorScheme.secondary
+            },
+    )
 }

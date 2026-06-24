@@ -9,7 +9,7 @@ import com.shrmrm.ft.data.domain.Expense
 import com.shrmrm.ft.data.domain.Task
 import com.shrmrm.ft.data.domain.TaskLog
 
-@Database(entities = [Task::class, TaskLog::class, Expense::class], version = 1)
+@Database(entities = [Task::class, TaskLog::class, Expense::class], version = 2)
 @TypeConverters(FtConverters::class)
 abstract class FtDb : RoomDatabase() {
     abstract fun ftDao(): FtDao

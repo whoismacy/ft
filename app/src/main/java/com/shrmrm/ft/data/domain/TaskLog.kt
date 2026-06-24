@@ -26,6 +26,5 @@ data class TaskLog(
     ) val status: String,
     @ColumnInfo(
         name = "log_date",
-        defaultValue = "CURRENT_TIMESTAMP",
     ) val logDate: Instant,
 )

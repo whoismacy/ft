@@ -201,7 +201,7 @@ class FtViewModel
             val validStatus =
                 TaskState
                     .entries
-                    .map { it.name }
+                    .map { it.status }
 
             if (taskLog.status !in validStatus) {
                 triggerEvent("An error occurred while completing Task!")
