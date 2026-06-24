@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.shrmrm.ft.data.db.FtDao
 import com.shrmrm.ft.data.domain.TaskLog
+import com.shrmrm.ft.utils.instantStartOfTheDay
 import java.time.Instant
 import javax.inject.Inject
 
@@ -15,7 +16,10 @@ class FtRepository
         // TASKS
         @RequiresApi(Build.VERSION_CODES.O)
         suspend fun createTask(name: String) {
-            ftDao.createTask(name)
+            ftDao.createTask(
+                name,
+                instantStartOfTheDay(Instant.now()),
+            )
         }
 
         fun loadAllTasks() = ftDao.loadAllTasks()
@@ -60,7 +64,10 @@ class FtRepository
         }
 
         // TASK LOGS
-        fun getTaskLog(id: Int) = ftDao.getTaskLog(id)
+        fun getTaskLog(
+            id: Int,
+            date: Instant,
+        ) = ftDao.getTaskLog(id, date)
 
         fun loadAllTaskLogs() = ftDao.loadAllTaskLogs()
 

@@ -88,7 +88,10 @@ class FtViewModel
             end: Instant,
         ) = repo.getExpensesInRange(start, end)
 
-        fun getTaskLog(id: Int) = repo.getTaskLog(id)
+        fun getTaskLog(
+            id: Int,
+            date: Instant,
+        ) = repo.getTaskLog(id, date)
 
         private fun changeLoading(state: Boolean) {
             _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = state)

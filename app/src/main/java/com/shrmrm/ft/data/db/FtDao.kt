@@ -8,6 +8,7 @@ import androidx.room.Upsert
 import com.shrmrm.ft.data.domain.Expense
 import com.shrmrm.ft.data.domain.Task
 import com.shrmrm.ft.data.domain.TaskLog
+import com.shrmrm.ft.utils.instantStartOfTheDay
 import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 
@@ -19,7 +20,8 @@ interface FtDao {
     @Query("INSERT INTO `tasks` (task_name, created_at) VALUES (:name, :date);")
     suspend fun createTask(
         name: String,
-        date: Instant = Instant.now(),
+        date: Instant =
+            instantStartOfTheDay(Instant.now()),
     )
 
     @Query("SELECT * FROM `tasks`;")
@@ -65,8 +67,11 @@ interface FtDao {
     @Query("SELECT * FROM `tasks_logs`;")
     fun loadAllTaskLogs(): Flow<List<TaskLog>>
 
-    @Query("SELECT * FROM `tasks_logs` WHERE `task_log_id` = :id;")
-    fun getTaskLog(id: Int): Flow<TaskLog?>
+    @Query("SELECT * FROM `tasks_logs` WHERE `task_log_id` = :id AND `log_date` = :date;")
+    fun getTaskLog(
+        id: Int,
+        date: Instant,
+    ): Flow<TaskLog?>
 
     @Upsert
     suspend fun completeTask(taskLog: TaskLog)

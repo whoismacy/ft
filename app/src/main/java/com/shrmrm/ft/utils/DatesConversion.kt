@@ -13,3 +13,13 @@ fun convertFromInstant(time: Instant): String {
     val formatter = DateTimeFormatter.ofPattern("MMM d")
     return localDateTime.format(formatter)
 }
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun instantStartOfTheDay(time: Instant): Instant {
+    val zone = ZoneId.systemDefault()
+    return time
+        .atZone(zone)
+        .toLocalDate()
+        .atStartOfDay(zone)
+        .toInstant()
+}
