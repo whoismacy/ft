@@ -1,11 +1,13 @@
 package com.shrmrm.ft.components
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,12 +15,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -26,7 +26,9 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -37,23 +39,10 @@ import com.shrmrm.ft.data.domain.TaskLog
 import com.shrmrm.ft.data.domain.TaskState
 import com.shrmrm.ft.data.viewmodels.FtIntent
 import com.shrmrm.ft.data.viewmodels.FtViewModel
-import com.shrmrm.ft.utils.convertFromInstant
 import com.shrmrm.ft.utils.instantStartOfTheDay
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-
-/*
-I'll use the Habit Card Design similar
-to the one used in Habits Loop app.
-
-Bugs:
-Upserting isn't working as it should (fix in DB)
-Flow is being collected on each Pointer Input
-The TaskLog getting sent to ViewModel
-
-De-bloat the Whole component, too many lines and conditionals
-*/
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -63,6 +52,7 @@ fun SingleTask(
     modifier: Modifier = Modifier,
 ) {
     Card(
+        shape = RoundedCornerShape(16.dp),
         colors =
             CardDefaults
                 .cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -72,23 +62,24 @@ fun SingleTask(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(8.dp)),
+                .padding(
+                    horizontal = 8.dp,
+                    vertical = 4.dp,
+                ),
     ) {
         Row(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(
-                        vertical = 4.dp,
-                    ),
+                    .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
                 task.name,
                 modifier = Modifier.weight(1f),
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleSmall,
                 maxLines = 1,
             )
             DayEntries(task, viewModel)
@@ -106,11 +97,7 @@ fun DayEntries(
     val today = LocalDate.now(zone)
 
     Row(
-        modifier =
-            Modifier
-                .fillMaxWidth(0.6f)
-                .padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         for (i in 0..4) {
             val day =
@@ -135,171 +122,112 @@ fun DayEntry(
     task: Task,
     viewModel: FtViewModel,
 ) {
-    val zone = ZoneId.systemDefault()
-    val cellDate = date.atZone(zone).toLocalDate()
-    val taskDate = task.created.atZone(zone).toLocalDate()
-    val today = LocalDate.now(zone)
+    val context = LocalContext.current
     val normalizedDate = instantStartOfTheDay(date)
-    val taskLogFlow =
+    val taskLog by
         remember(
             task.id,
             date,
         ) { viewModel.getTaskLog(task.id, normalizedDate) }
+            .collectAsStateWithLifecycle(null)
 
-    val taskLog =
-        taskLogFlow
-            .collectAsStateWithLifecycle(initialValue = null)
-            .value
+    val zone = ZoneId.systemDefault()
+    val cellDate = date.atZone(zone).toLocalDate()
+    val taskCreatedDate = task.created.atZone(zone).toLocalDate()
+    val today = LocalDate.now(zone)
+    val isBeforeCreated = cellDate.isBefore(taskCreatedDate)
+    val isToday = cellDate == today
 
-    val onTap = {
-        viewModel
-            .handleIntent(
-                FtIntent
-                    .CompleteTask(
-                        TaskLog(
-                            id = task.id,
-                            status = TaskState.DONE.status,
-                            logDate = normalizedDate,
-                        ),
-                    ),
-            )
-    }
-    val onDoubleTap = {
-        viewModel
-            .handleIntent(
-                FtIntent
-                    .CompleteTask(
-                        TaskLog(
-                            id = task.id,
-                            status = TaskState.HOLD.status,
-                            logDate = normalizedDate,
-                        ),
-                    ),
-            )
-    }
-    val onLongPress = {
-        viewModel
-            .handleIntent(
-                FtIntent
-                    .CompleteTask(
-                        TaskLog(
-                            id = task.id,
-                            status = TaskState.FAILED.status,
-                            logDate = normalizedDate,
-                        ),
-                    ),
-            )
-    }
+    val (containerColor, contentColor, icon) =
+        when {
+            isBeforeCreated -> {
+                Triple(
+                    MaterialTheme.colorScheme.surfaceVariant,
+                    MaterialTheme.colorScheme.onSurfaceVariant,
+                    R.drawable.baseline_block_24,
+                )
+            }
 
-    when {
-        cellDate == today -> {
-            when (taskLog?.status) {
-                TaskState.DONE.status -> {
-                    DisplayIcon(
-                        painter = TaskState.DONE.icon,
-                        onTap = onTap,
-                        onDoubleTap = onDoubleTap,
-                        onLongPress = onLongPress,
-                    )
-                }
+            taskLog?.status == TaskState.DONE.status -> {
+                Triple(
+                    MaterialTheme.colorScheme.tertiaryContainer,
+                    MaterialTheme.colorScheme.onTertiaryContainer,
+                    TaskState.DONE.icon,
+                )
+            }
 
-                TaskState.HOLD.status -> {
-                    DisplayIcon(
-                        painter = TaskState.HOLD.icon,
-                        onTap = onTap,
-                        onDoubleTap = onDoubleTap,
-                        onLongPress = onLongPress,
-                    )
-                }
+            taskLog?.status == TaskState.HOLD.status -> {
+                Triple(
+                    MaterialTheme.colorScheme.secondaryContainer,
+                    MaterialTheme.colorScheme.onSecondaryContainer,
+                    TaskState.HOLD.icon,
+                )
+            }
 
-                TaskState.FAILED.status -> {
-                    DisplayIcon(
-                        painter = TaskState.FAILED.icon,
-                        onTap = onTap,
-                        onDoubleTap = onDoubleTap,
-                        onLongPress = onLongPress,
-                    )
-                }
+            taskLog?.status == TaskState.FAILED.status -> {
+                Triple(
+                    MaterialTheme.colorScheme.errorContainer,
+                    MaterialTheme.colorScheme.onErrorContainer,
+                    TaskState.FAILED.icon,
+                )
+            }
 
-                else -> {
-                    DisplayIcon(
-                        painter = R.drawable.baseline_question_mark_24,
-                        onTap = onTap,
-                        onDoubleTap = onDoubleTap,
-                        onLongPress = onLongPress,
-                    )
-                }
+            else -> {
+                Triple(
+                    MaterialTheme.colorScheme.surfaceVariant,
+                    MaterialTheme.colorScheme.onSurfaceVariant,
+                    if (isToday) R.drawable.baseline_question_mark_24 else R.drawable.baseline_event_busy_24,
+                )
             }
         }
 
-        cellDate.isBefore(taskDate) -> {
-            DisplayIcon(
-                painter = R.drawable.baseline_dangerous_24,
-                onClick = {
-                    viewModel
-                        .triggerEvent(
-                            "Error⚠️: Task did not exist on" +
-                                " ${convertFromInstant(date)}",
-                        )
-                },
-            )
-        }
-
-        else -> {
-            val errorMessage = "Error⚠️: Cannot modify already passed task."
-            when (taskLog?.status) {
-                TaskState.DONE.status -> {
-                    DisplayIcon(
-                        painter = TaskState.DONE.icon,
-                        onClick = {
-                            viewModel
-                                .triggerEvent(errorMessage)
-                        },
-                    )
-                }
-
-                TaskState.HOLD.status -> {
-                    DisplayIcon(
-                        painter = TaskState.HOLD.icon,
-                        onClick = {
-                            viewModel
-                                .triggerEvent(errorMessage)
-                        },
-                    )
-                }
-
-                TaskState.FAILED.status -> {
-                    DisplayIcon(
-                        painter = TaskState.FAILED.icon,
-                        onClick = {
-                            viewModel
-                                .triggerEvent(errorMessage)
-                        },
-                    )
-                }
-
-                else -> {
-                    DisplayIcon(
-                        painter = R.drawable.baseline_edit_24,
-                        onClick = {
-                            viewModel
-                                .triggerEvent(errorMessage)
-                        },
-                    )
-                }
-            }
-        }
+    if (!isToday) {
+        StatusSquare(
+            icon = icon,
+            contentColor = contentColor,
+            containerColor = containerColor,
+            onClick = {
+                Toast
+                    .makeText(
+                        context,
+                        "Error: Only current day modification allowed",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+            },
+        )
+    } else {
+        StatusSquare(
+            icon = icon,
+            contentColor = contentColor,
+            containerColor = containerColor,
+            onTap = {
+                viewModel.handleIntent(
+                    FtIntent.CompleteTask(TaskLog(id = task.id, status = TaskState.DONE.status, logDate = normalizedDate)),
+                )
+            },
+            onDoubleTap = {
+                viewModel.handleIntent(
+                    FtIntent.CompleteTask(TaskLog(id = task.id, status = TaskState.HOLD.status, logDate = normalizedDate)),
+                )
+            },
+            onLongPress = {
+                viewModel.handleIntent(
+                    FtIntent.CompleteTask(TaskLog(id = task.id, status = TaskState.FAILED.status, logDate = normalizedDate)),
+                )
+            },
+        )
     }
 }
 
 @Composable
-fun DisplayIcon(
-    painter: Int,
+fun StatusSquare(
+    icon: Int,
     onTap: (() -> Unit)? = null,
     onDoubleTap: (() -> Unit)? = null,
     onLongPress: (() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
-    contentDescription: String? = null,
+    containerColor: Color,
+    contentColor: Color,
 ) {
     val currentOnTap by rememberUpdatedState(onTap)
     val currentOnDoubleTap by rememberUpdatedState(onDoubleTap)
@@ -343,19 +271,20 @@ fun DisplayIcon(
                 Modifier
             }
         }
-    Icon(
-        painter = painterResource(painter),
-        contentDescription = contentDescription,
+    Box(
         modifier =
             Modifier
-                .minimumInteractiveComponentSize()
-                .then(interactionModifier)
-                .size(16.dp),
-        tint =
-            if (onClick != null) {
-                MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
-            } else {
-                MaterialTheme.colorScheme.secondary
-            },
-    )
+                .size(32.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(containerColor)
+                .then(interactionModifier),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            painter = painterResource(id = icon),
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+            tint = contentColor,
+        )
+    }
 }

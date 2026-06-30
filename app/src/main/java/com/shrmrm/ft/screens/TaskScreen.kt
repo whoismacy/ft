@@ -78,7 +78,8 @@ fun TaskScreen(viewModel: FtViewModel) {
                     Spacer(Modifier.height(24.dp))
                     Text(
                         convertFromInstant(today.toInstant()) +
-                            " - ${convertFromInstant(today.minusDays(4).toInstant())}",
+                            " - " +
+                            convertFromInstant(today.minusDays(4).toInstant()),
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                         style =
@@ -92,7 +93,7 @@ fun TaskScreen(viewModel: FtViewModel) {
                             Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(24.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         items(tasks) { task ->
                             SingleTask(task, viewModel)
