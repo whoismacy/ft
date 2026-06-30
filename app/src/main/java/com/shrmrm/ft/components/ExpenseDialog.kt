@@ -1,21 +1,24 @@
 package com.shrmrm.ft.components
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,10 +26,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.shrmrm.ft.R
 import com.shrmrm.ft.data.events.EventManager
 import com.shrmrm.ft.data.viewmodels.FtIntent
 import com.shrmrm.ft.data.viewmodels.FtViewModel
@@ -34,27 +40,23 @@ import com.shrmrm.ft.data.viewmodels.FtViewModel
 @Composable
 fun ExpenseDialog(
     viewModel: FtViewModel,
-    modifier: Modifier = Modifier,
     onDismissRequest: () -> Unit = {},
 ) {
     var expensePurpose by rememberSaveable { mutableStateOf("") }
     var expenseAmount by rememberSaveable { mutableStateOf("") }
-    var expenseTypeSpent by rememberSaveable { mutableStateOf(true) }
 
-    val onExpensePurpose: (String) -> Unit = { expensePurpose = it }
-    val onExpenseAmount: (String) -> Unit = { expenseAmount = it }
+    var isExpense by rememberSaveable { mutableStateOf(true) }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun createExpense() {
-        if (expensePurpose.isEmpty() || expenseAmount.isEmpty()) {
-            EventManager.triggerEvent(EventManager.AppEvent.ShowSnackbar("⚠️ Fill in the Expense Purpose and Amount to Continue"))
+        val amountValue = expenseAmount.toIntOrNull()
+        if (expensePurpose.isBlank() || amountValue == null) {
+            EventManager.triggerEvent(
+                EventManager
+                    .AppEvent
+                    .ShowSnackbar("Error: Input a valid purpose and amount"),
+            )
         } else {
-            val value =
-                if (expenseTypeSpent) {
-                    expenseAmount.toInt() * -1
-                } else {
-                    expenseAmount.toInt()
-                }
+            val value = if (isExpense) -amountValue else amountValue
             viewModel.handleIntent(
                 FtIntent.CreateExpense(
                     name = expensePurpose,
@@ -67,49 +69,92 @@ fun ExpenseDialog(
 
     Dialog(
         onDismissRequest = onDismissRequest,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            shape = MaterialTheme.shapes.large,
+            modifier = Modifier.fillMaxWidth(0.9f).wrapContentHeight(),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            shape = MaterialTheme.shapes.extraLarge,
+            tonalElevation = 6.dp,
         ) {
             Column(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp, horizontal = 12.dp),
+                modifier = Modifier.padding(24.dp).fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
                 Text(
-                    "Create New Expense",
-                    style = MaterialTheme.typography.headlineMediumEmphasized,
-                )
-                Spacer(Modifier.height(4.dp))
-                ExpenseInput(
-                    label = "Purpose",
-                    placeholder = "Input expense purpose",
-                    value = expensePurpose,
-                    onValueChange = onExpensePurpose,
-                    isValueInt = false,
+                    "New Expense Transaction",
+                    style = MaterialTheme.typography.headlineSmall,
                 )
 
-                ExpenseInput(
-                    label = "Amount",
-                    placeholder = "Input expense amount",
-                    value = expenseAmount,
-                    onValueChange = onExpenseAmount,
-                    isValueInt = true,
-                )
-                ExpenseType(expenseTypeSpent) { expenseTypeSpent = it }
-                Spacer(Modifier.height(8.dp))
-                ElevatedButton(
-                    onClick = {
-                        createExpense()
-                    },
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    SegmentedButton(
+                        selected = !isExpense,
+                        onClick = { isExpense = false },
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                        label = { Text("Income") },
+                        colors =
+                            SegmentedButtonDefaults.colors(
+                                activeContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                activeContentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                            ),
+                    )
+
+                    SegmentedButton(
+                        selected = isExpense,
+                        onClick = { isExpense = true },
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                        label = { Text("Expense") },
+                        colors =
+                            SegmentedButtonDefaults.colors(
+                                activeContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                activeContentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                            ),
+                    )
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    ExpenseInputField(
+                        label = "Purpose",
+                        value = expensePurpose,
+                        onValueChange = { expensePurpose = it },
+                        keyboardOptions =
+                            KeyboardOptions(
+                                capitalization = KeyboardCapitalization.Sentences,
+                                keyboardType = KeyboardType.Text,
+                            ),
+                        icon = R.drawable.outline_description_24,
+                    )
+
+                    ExpenseInputField(
+                        label = "Amount",
+                        value = expenseAmount,
+                        onValueChange = { if (it.all { c -> c.isDigit() }) expenseAmount = it },
+                        keyboardOptions =
+                            KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                            ),
+                        icon = R.drawable.baseline_attach_money_24,
+                    )
+                }
+
+                Row(
                     modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    Text("Create expense")
+                    TextButton(
+                        onClick = onDismissRequest,
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text("Cancel")
+                    }
+                    Button(
+                        onClick = { createExpense() },
+                        modifier = Modifier.weight(1.5f),
+                        shape = MaterialTheme.shapes.large,
+                    ) {
+                        Text("Create")
+                    }
                 }
             }
         }
@@ -117,70 +162,38 @@ fun ExpenseDialog(
 }
 
 @Composable
-fun ExpenseInput(
+fun ExpenseInputField(
     label: String,
-    placeholder: String,
     value: String,
     onValueChange: (String) -> Unit,
-    isValueInt: Boolean,
+    icon: Int,
+    keyboardOptions: KeyboardOptions,
 ) {
     OutlinedTextField(
         value = value,
-        onValueChange = { value: String -> onValueChange(value) },
-        enabled = true,
+        onValueChange = onValueChange,
         label = { Text(label) },
-        placeholder = { Text(placeholder) },
-        singleLine = false,
-        minLines = 2,
-        maxLines = 5,
+        keyboardOptions = keyboardOptions,
+        singleLine = true,
         shape = MaterialTheme.shapes.medium,
-        keyboardOptions =
-            if (isValueInt) {
-                KeyboardOptions(
-                    keyboardType = KeyboardType.NumberSigned,
-                )
-            } else {
-                KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Sentences,
-                    autoCorrectEnabled = true,
-                    keyboardType = KeyboardType.Text,
-                )
-            },
+        modifier = Modifier.fillMaxWidth(),
+        leadingIcon = {
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+            )
+        },
+        trailingIcon = {
+            if (value.isNotEmpty()) {
+                IconButton(onClick = { onValueChange("") }) {
+                    Icon(
+                        painter = painterResource(R.drawable.outline_close_24),
+                        contentDescription = "Clear",
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
+        },
     )
-}
-
-@Composable
-fun ExpenseType(
-    spendType: Boolean,
-    changeExpenseType: (Boolean) -> Unit,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Checkbox(
-                checked = !spendType,
-                onCheckedChange = { changeExpenseType(false) },
-            )
-            Text("Add")
-        }
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Checkbox(
-                checked = spendType,
-                onCheckedChange = { changeExpenseType(true) },
-            )
-            Text("Spent")
-        }
-    }
 }

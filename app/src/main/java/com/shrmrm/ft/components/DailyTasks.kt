@@ -1,8 +1,6 @@
 package com.shrmrm.ft.components
 
-import android.os.Build
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -44,7 +42,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SingleTask(
     task: Task,
@@ -87,7 +84,6 @@ fun SingleTask(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayEntries(
     task: Task,
@@ -115,7 +111,6 @@ fun DayEntries(
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayEntry(
     date: Instant,
