@@ -102,7 +102,7 @@ fun BentoBox(
                     .fillMaxWidth()
                     .height(100.dp),
             title = "All Transactions",
-            value = "${expenses.size} transaction in this period",
+            value = "${expenses.size} transactions in this period",
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             icon = R.drawable.baseline_bar_chart_24,

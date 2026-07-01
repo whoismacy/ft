@@ -61,18 +61,12 @@ fun SingleExpense(
             }
         },
         backgroundContent = {
-            val backgroundColor =
-                lerp(
-                    start = Color.Transparent,
-                    stop = MaterialTheme.colorScheme.errorContainer,
-                    fraction = (swipeState.progress * 1.5f).coerceIn(0f, 1f),
-                )
             Box(
                 modifier =
                     Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(16.dp))
-                        .background(backgroundColor),
+                        .background(MaterialTheme.colorScheme.errorContainer),
                 contentAlignment = Alignment.CenterEnd,
             ) {
                 if (swipeState.progress > 0.2f) {
@@ -120,9 +114,9 @@ private fun ExpenseCard(expense: Expense) {
             )
             Spacer(Modifier.width(8.dp))
             Text(
-                text = "${if (!isNegative) "+" else ""} ${formatCurrency(expense.amount)}",
+                text = formatCurrency(expense.amount),
                 style =
-                    MaterialTheme.typography.titleMedium.copy(
+                    MaterialTheme.typography.titleLargeEmphasized.copy(
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.5.sp,
                     ),

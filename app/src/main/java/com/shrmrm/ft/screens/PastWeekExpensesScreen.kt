@@ -7,6 +7,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shrmrm.ft.components.BentoBox
 import com.shrmrm.ft.components.EmptyState
 import com.shrmrm.ft.data.viewmodels.FtViewModel
+import com.shrmrm.ft.utils.convertFromInstant
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -15,6 +16,7 @@ import java.time.ZoneId
 fun PastWeekExpensesScreen(viewModel: FtViewModel) {
     val zone = ZoneId.systemDefault()
     val today = LocalDate.now()
+    val startOfToday = today.atStartOfDay(zone).toInstant()
 
     val startOfTomorrow =
         today
@@ -34,7 +36,12 @@ fun PastWeekExpensesScreen(viewModel: FtViewModel) {
             .value
 
     if (expenses.isEmpty()) {
-        EmptyState(message = "No expenses found")
+        EmptyState(
+            message = "No expenses found",
+            supportingMessage = "Zero expenses between ${convertFromInstant(
+                startOfPreviousWeek,
+            )} and ${convertFromInstant(startOfToday)}",
+        )
     } else {
         BentoBox(title = "Past Week's Expenses", expenses = expenses)
     }

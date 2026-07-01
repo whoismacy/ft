@@ -14,6 +14,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonColors
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
@@ -90,25 +91,65 @@ fun ExpenseDialog(
                 SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                     SegmentedButton(
                         selected = !isExpense,
-                        onClick = { isExpense = false },
+                        onClick = {
+                            isExpense = false
+                            expensePurpose = "Deposit"
+                        },
                         shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
                         label = { Text("Income") },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.outline_add_24),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                            )
+                        },
                         colors =
-                            SegmentedButtonDefaults.colors(
-                                activeContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                activeContentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                            SegmentedButtonColors(
+                                activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                activeBorderColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.4f),
+                                inactiveContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                inactiveContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                inactiveBorderColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.4f),
+                                disabledActiveContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                disabledActiveContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                disabledActiveBorderColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.4f),
+                                disabledInactiveContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                disabledInactiveContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                disabledInactiveBorderColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.4f),
                             ),
                     )
 
                     SegmentedButton(
                         selected = isExpense,
-                        onClick = { isExpense = true },
+                        onClick = {
+                            isExpense = true
+                            expensePurpose = ""
+                        },
                         shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
                         label = { Text("Expense") },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.outline_check_indeterminate_small_24),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                            )
+                        },
                         colors =
-                            SegmentedButtonDefaults.colors(
-                                activeContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                activeContentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                            SegmentedButtonColors(
+                                activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                activeBorderColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.4f),
+                                inactiveContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                inactiveContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                inactiveBorderColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.4f),
+                                disabledActiveContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                disabledActiveContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                disabledActiveBorderColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.4f),
+                                disabledInactiveContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                disabledInactiveContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                disabledInactiveBorderColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.4f),
                             ),
                     )
                 }

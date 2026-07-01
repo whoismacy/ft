@@ -64,7 +64,7 @@ fun MoreExpensesScreen(viewModel: FtViewModel) {
         expenses6.isEmpty() ||
         expenses12.isEmpty()
     ) {
-        EmptyState(message = "No expenses found")
+        EmptyState(message = "No expenses found", supportingMessage = "Zero expenses in the past 6 months period")
     } else {
         LazyColumn(
             modifier =

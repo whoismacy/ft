@@ -7,6 +7,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shrmrm.ft.components.BentoBox
 import com.shrmrm.ft.components.EmptyState
 import com.shrmrm.ft.data.viewmodels.FtViewModel
+import com.shrmrm.ft.utils.convertFromInstant
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -26,7 +27,7 @@ fun YesterdayExpensesScreen(viewModel: FtViewModel) {
             .value
 
     if (expenses.isEmpty()) {
-        EmptyState(message = "No expenses found")
+        EmptyState(message = "No expenses found", supportingMessage = "Zero expenses on ${convertFromInstant(startOfYesterday)}")
     } else {
         BentoBox(title = "Yesterday's Expenses", expenses = expenses)
     }
