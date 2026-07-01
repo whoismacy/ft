@@ -3,35 +3,28 @@ package com.shrmrm.ft.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.toColorInt
+import com.shrmrm.ft.R
 import com.shrmrm.ft.data.domain.Expense
-
-enum class Colors(
-    val color: String,
-) {
-    YELLOW("#ffd966"),
-    ORANGE("#fe8f88"),
-    TEAL("#aacdba"),
-    PURPLE("#baaff5"),
-}
-
-fun parseColor(hex: String): Color = Color(hex.toColorInt())
 
 @Composable
 fun BentoBox(
@@ -39,65 +32,81 @@ fun BentoBox(
     expenses: List<Expense>,
     modifier: Modifier = Modifier,
 ) {
-    val highest = expenses.minByOrNull { it.amount }!!.amount
-    val sumIn = expenses.filter { it.amount > 0 }.sumOf { it.amount }
-    val sumOut = expenses.filter { it.amount < 0 }.sumOf { it.amount }
+    val totalSpent = expenses.filter { it.amount < 0 }.sumOf { it.amount.toDouble() }
+    val totalIncome = expenses.filter { it.amount > 0 }.sumOf { it.amount.toDouble() }
+    val balance = totalIncome + totalSpent
 
     Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text(title, style = MaterialTheme.typography.titleLargeEmphasized)
-        Column(
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp).fillMaxWidth(),
+            textAlign = TextAlign.Center,
+        )
+
+        Row(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                    .height(240.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             BentoCard(
-                title = "Highest Spent",
-                value = "$highest",
-                color = Colors.YELLOW,
                 modifier =
                     Modifier
-                        .fillMaxWidth()
-                        .height(160.dp),
+                        .weight(1.2f)
+                        .fillMaxHeight(),
+                title = "Current Balance",
+                value = "KShs ${balance.toInt()}",
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                icon = R.drawable.baseline_account_balance_wallet_24,
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+
+            Column(
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 BentoCard(
-                    title = "Money In",
-                    value = "$sumIn",
-                    color = Colors.PURPLE,
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .height(160.dp),
+                    modifier = Modifier.weight(1f),
+                    title = "Income",
+                    value = "+${totalIncome.toInt()}",
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                    icon = R.drawable.outline_trending_up_24,
                 )
                 BentoCard(
-                    title = "Money Out",
-                    value = "$sumOut",
-                    color = Colors.ORANGE,
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .height(160.dp),
+                    modifier = Modifier.weight(1f),
+                    title = "Expenses",
+                    value = "${totalSpent.toInt()}",
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    icon = R.drawable.baseline_trending_down_24,
                 )
             }
-            BentoCard(
-                title = "Total Expenses",
-                value = "${expenses.size}",
-                color = Colors.TEAL,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(160.dp),
-            )
         }
+
+        BentoCard(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(100.dp),
+            title = "All Transactions",
+            value = "${expenses.size} transaction in this period",
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            icon = R.drawable.baseline_bar_chart_24,
+        )
     }
 }
 
@@ -105,39 +114,44 @@ fun BentoBox(
 fun BentoCard(
     title: String,
     value: String,
-    color: Colors,
+    icon: Int,
+    containerColor: Color,
+    contentColor: Color,
     modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = parseColor(color.color)),
-        shape = MaterialTheme.shapes.extraLarge,
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        shape = RoundedCornerShape(24.dp), // Softer corners
     ) {
         Column(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 8.dp, vertical = 16.dp),
+                    .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.displaySmall,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
-                fontSize = 32.sp,
-                textAlign = TextAlign.Center,
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                tint = contentColor.copy(alpha = 0.8f),
+                modifier = Modifier.size(24.dp),
             )
-            Text(
-                text = title.uppercase(),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
-                fontSize = 12.sp,
-                letterSpacing = 1.6.sp,
-                fontWeight = FontWeight.Bold,
-            )
+            Column {
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = contentColor,
+                )
+                Text(
+                    text = title.uppercase(),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = contentColor.copy(alpha = 0.6f),
+                    letterSpacing = 1.sp,
+                )
+            }
         }
     }
 }

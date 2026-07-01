@@ -1,6 +1,7 @@
 package com.shrmrm.ft.components
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -53,9 +54,6 @@ fun SingleTask(
         colors =
             CardDefaults
                 .cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation =
-            CardDefaults
-                .cardElevation(.5.dp),
         modifier =
             modifier
                 .fillMaxWidth()
@@ -63,6 +61,11 @@ fun SingleTask(
                     horizontal = 8.dp,
                     vertical = 4.dp,
                 ),
+        border =
+            BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+            ),
     ) {
         Row(
             modifier =

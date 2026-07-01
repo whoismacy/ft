@@ -1,32 +1,33 @@
 package com.shrmrm.ft.components
 
-import androidx.compose.foundation.BorderStroke
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxDefaults
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,112 +37,102 @@ import com.shrmrm.ft.R
 import com.shrmrm.ft.data.domain.Expense
 import com.shrmrm.ft.data.viewmodels.FtIntent
 import com.shrmrm.ft.data.viewmodels.FtViewModel
-import kotlinx.coroutines.launch
+import com.shrmrm.ft.utils.formatCurrency
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SingleExpense(
     expense: Expense,
     viewModel: FtViewModel,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val swipeToDismissBoxState =
+    val haptic = LocalHapticFeedback.current
+    val swipeState =
         rememberSwipeToDismissBoxState(
-            positionalThreshold = SwipeToDismissBoxDefaults.positionalThreshold,
+            positionalThreshold = { distance -> distance * 0.7f },
         )
-    SwipeToDismissBox(
-        modifier = Modifier.fillMaxSize(),
-        state = swipeToDismissBoxState,
-        onDismiss = { dismissValue ->
-            when (dismissValue) {
-                SwipeToDismissBoxValue.EndToStart -> {
-                    coroutineScope.launch { swipeToDismissBoxState.reset() }
-                    viewModel.handleIntent(FtIntent.DeleteExpense(expense.expenseId))
-                }
 
-                else -> {
-                    coroutineScope.launch {
-                        swipeToDismissBoxState.reset()
-                    }
-                }
+    SwipeToDismissBox(
+        state = swipeState,
+        enableDismissFromStartToEnd = false,
+        onDismiss = { value ->
+            if (value == SwipeToDismissBoxValue.EndToStart) {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                viewModel.handleIntent(FtIntent.DeleteExpense(expense.expenseId))
             }
         },
         backgroundContent = {
-            when (swipeToDismissBoxState.dismissDirection) {
-                SwipeToDismissBoxValue.EndToStart -> {
+            val backgroundColor =
+                lerp(
+                    start = Color.Transparent,
+                    stop = MaterialTheme.colorScheme.errorContainer,
+                    fraction = (swipeState.progress * 1.5f).coerceIn(0f, 1f),
+                )
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(backgroundColor),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                if (swipeState.progress > 0.2f) {
                     Icon(
-                        painterResource(R.drawable.baseline_delete_forever_24),
-                        contentDescription = null,
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .background(
-                                    lerp(
-                                        Color.LightGray,
-                                        Color.Red,
-                                        swipeToDismissBoxState.progress,
-                                    ),
-                                ).wrapContentSize(Alignment.CenterStart)
-                                .padding(12.dp),
-                        tint = Color.White,
+                        painter = painterResource(R.drawable.baseline_delete_forever_24),
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.padding(horizontal = 16.dp).size(24.dp),
                     )
                 }
-
-                else -> {}
             }
         },
     ) {
-        Card(
-            colors =
-                CardDefaults
-                    .cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border =
-                BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
-                ),
+        ExpenseCard(expense)
+    }
+}
+
+@Composable
+private fun ExpenseCard(expense: Expense) {
+    val isNegative = expense.amount < 0
+
+    Card(
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            ),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(1.dp)),
+                    .padding(24.dp)
+                    .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp, horizontal = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                val expensePositive = expense.amount > 0
-                Text(
-                    text = expense.name,
-                    maxLines = 1,
-                    modifier = Modifier.weight(1f),
-                    overflow = TextOverflow.Ellipsis,
-                    style =
-                        MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.ExtraLight,
-                        ),
-                )
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    if (!expensePositive) "- KShs ${expense.amount * -1}" else "+ KShs ${expense.amount}",
-                    color =
-                        if (expensePositive) {
-                            MaterialTheme.colorScheme.tertiary
-                        } else {
-                            Color.Red
-                        },
-                    style =
-                        MaterialTheme
-                            .typography.titleLargeEmphasized
-                            .copy(
-                                fontWeight =
-                                    FontWeight.ExtraBold,
-                                letterSpacing = 1.5.sp,
-                            ),
-                )
-            }
+            Text(
+                text = expense.name,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f),
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = "${if (!isNegative) "+" else ""} ${formatCurrency(expense.amount)}",
+                style =
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp,
+                    ),
+                color =
+                    if (isNegative) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.tertiary
+                    },
+            )
         }
     }
 }

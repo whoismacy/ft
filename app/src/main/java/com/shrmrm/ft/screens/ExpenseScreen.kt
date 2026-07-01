@@ -2,23 +2,31 @@ package com.shrmrm.ft.screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
@@ -36,6 +44,9 @@ fun ExpenseScreen(viewModel: FtViewModel) {
     var dialogActive by rememberSaveable { mutableStateOf(false) }
     val tabBackStack = remember { mutableStateListOf<Routes>(Routes.TodaysExpensesRoute) }
     val currentTab = tabBackStack.last()
+    val selectedTabIndex =
+        remember(currentTab)
+            { TabDestinations.entries.indexOfFirst { it.route == currentTab } }.coerceAtLeast(0)
 
     Scaffold(
         snackbarHost = { SnackbarHost(viewModel.snackBarHost) },
@@ -50,32 +61,33 @@ fun ExpenseScreen(viewModel: FtViewModel) {
             modifier = Modifier.fillMaxSize().padding(innerPadding),
         ) {
             PrimaryScrollableTabRow(
-                selectedTabIndex =
-                    when (currentTab) {
-                        is Routes.TodaysExpensesRoute -> {
-                            0
-                        }
-
-                        is Routes.YesterdayExpensesRoute -> {
-                            1
-                        }
-
-                        is Routes.PastWeekExpensesRoute -> {
-                            2
-                        }
-
-                        is Routes.MoreExpensesRoute -> {
-                            3
-                        }
-
-                        else -> {
-                            0
-                        }
-                    },
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.primary,
+                divider = {},
+                edgePadding = 12.dp,
+                selectedTabIndex = selectedTabIndex,
                 scrollState = rememberScrollState(),
+                indicator = {
+                    if (selectedTabIndex < TabDestinations.entries.size) {
+                        Box(
+                            Modifier
+                                .tabIndicatorOffset(selectedTabIndex)
+                                .fillMaxSize()
+                                .padding(
+                                    horizontal = 4.dp,
+                                    vertical = 8.dp,
+                                ).background(
+                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                                    shape = CircleShape,
+                                ),
+                        )
+                    }
+                },
             ) {
                 TabDestinations.entries.forEach { destinations ->
                     Tab(
+                        selectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         selected = currentTab == destinations.route,
                         onClick = {
                             if (currentTab != destinations.route) {
@@ -90,10 +102,7 @@ fun ExpenseScreen(viewModel: FtViewModel) {
 
             NavDisplay(
                 backStack = tabBackStack,
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .padding(top = 8.dp),
+                modifier = Modifier.weight(1f),
                 entryDecorators =
                     listOf(
                         rememberSaveableStateHolderNavEntryDecorator(),
