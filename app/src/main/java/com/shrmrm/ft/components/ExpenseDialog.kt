@@ -138,9 +138,9 @@ fun ExpenseDialog(
                         },
                         colors =
                             SegmentedButtonColors(
-                                activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                activeBorderColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.4f),
+                                activeContainerColor = MaterialTheme.colorScheme.errorContainer,
+                                activeContentColor = MaterialTheme.colorScheme.onErrorContainer,
+                                activeBorderColor = MaterialTheme.colorScheme.error.copy(alpha = 0.5f),
                                 inactiveContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 inactiveContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                                 inactiveBorderColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.4f),

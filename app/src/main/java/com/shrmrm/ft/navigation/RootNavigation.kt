@@ -25,6 +25,7 @@ import com.shrmrm.ft.components.NavigationComponents
 import com.shrmrm.ft.data.events.EventManager
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 import com.shrmrm.ft.screens.ExpenseScreen
+import com.shrmrm.ft.screens.SettingsScreen
 import com.shrmrm.ft.screens.TaskScreen
 import kotlinx.coroutines.launch
 
@@ -89,6 +90,10 @@ fun RootNavigation(viewModel: FtViewModel = hiltViewModel()) {
                         TaskScreen(
                             viewModel = viewModel,
                         )
+                    }
+
+                    entry<Routes.SettingsRoute> {
+                        SettingsScreen(viewModel = viewModel)
                     }
                 },
             transitionSpec = { animation },

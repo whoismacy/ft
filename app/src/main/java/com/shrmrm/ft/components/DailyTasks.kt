@@ -395,7 +395,7 @@ fun EditDeleteDialog(
                             SegmentedButtonColors(
                                 activeContainerColor = MaterialTheme.colorScheme.errorContainer,
                                 activeContentColor = MaterialTheme.colorScheme.onErrorContainer,
-                                activeBorderColor = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.4f),
+                                activeBorderColor = MaterialTheme.colorScheme.error.copy(alpha = 0.4f),
                                 inactiveContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 inactiveContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                                 inactiveBorderColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.4f),

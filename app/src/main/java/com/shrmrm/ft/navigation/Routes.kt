@@ -23,6 +23,18 @@ sealed interface Routes {
 
     @Serializable
     data object MoreExpensesRoute : Routes, NavKey
+
+    @Serializable
+    data object SettingsRoute : Routes, NavKey
+
+    @Serializable
+    data object SettingsAppRoute : Routes, NavKey
+
+    @Serializable
+    data object SettingsSecurityRoute : Routes, NavKey
+
+    @Serializable
+    data object SettingsThemeRoute : Routes, NavKey
 }
 
 class AppNavigator(
@@ -34,6 +46,7 @@ class AppNavigator(
         backStack.add(route)
     }
 
+    /*
     fun navigateBack() {
         if (backStack.size > 1) {
             backStack.removeLastOrNull()
@@ -45,4 +58,5 @@ class AppNavigator(
             backStack.removeRange(1, backStack.size)
         }
     }
+     */
 }

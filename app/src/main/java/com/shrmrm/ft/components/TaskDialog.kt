@@ -58,6 +58,7 @@ fun TaskDialog(
             onDismissRequest()
         }
     }
+
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false),

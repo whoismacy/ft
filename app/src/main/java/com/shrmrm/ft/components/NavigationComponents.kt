@@ -18,4 +18,9 @@ enum class NavigationComponents(
         R.drawable.outline_person_heart_24,
         Routes.TasksRoute,
     ),
+    Settings(
+        "Settings",
+        R.drawable.baseline_settings_24,
+        Routes.SettingsRoute,
+    ),
 }

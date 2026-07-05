@@ -38,7 +38,7 @@ interface FtDao {
 
     // EXPENSES
     @RequiresApi(Build.VERSION_CODES.O)
-    @Query("INSERT INTO 'expenses' (expense_name, expense_amount, expense_date) VALUES (:name, :amount, :date); ")
+    @Query("INSERT INTO `expenses` (expense_name, expense_amount, expense_date) VALUES (:name, :amount, :date); ")
     suspend fun createExpense(
         name: String,
         amount: Int,
