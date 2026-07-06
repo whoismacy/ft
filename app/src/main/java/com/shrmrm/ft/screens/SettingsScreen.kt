@@ -2,10 +2,15 @@ package com.shrmrm.ft.screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -38,6 +43,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.shrmrm.ft.R
+import com.shrmrm.ft.components.SettingsProfile
 import com.shrmrm.ft.data.viewmodels.FtViewModel
 import com.shrmrm.ft.navigation.Routes
 
@@ -49,6 +55,9 @@ private data class SettingsScreenItems(
     val containerColor: Color,
     val route: Routes,
 )
+
+private val animation =
+    fadeIn(tween(300)) togetherWith fadeOut(tween(300))
 
 @Composable
 private fun getSettingItems(): List<SettingsScreenItems> =
@@ -70,6 +79,14 @@ private fun getSettingItems(): List<SettingsScreenItems> =
             route = Routes.SettingsThemeRoute,
         ),
         SettingsScreenItems(
+            "Export & Import data",
+            "Backup or add data to FT",
+            R.drawable.outline_file_export_24,
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            route = Routes.SettingsExportRoute,
+        ),
+        SettingsScreenItems(
             "About App",
             "See app's information",
             R.drawable.outline_code_24,
@@ -84,10 +101,7 @@ private fun getSettingItems(): List<SettingsScreenItems> =
 fun SettingsScreen(viewModel: FtViewModel) {
     val settingsBackStack = remember { mutableStateListOf<Routes>(Routes.SettingsRoute) }
     val navigateTo: (Routes) -> Unit = {
-        if (settingsBackStack.size >= 2) {
-            settingsBackStack.removeLastOrNull()
-            settingsBackStack.add(it)
-        } else {
+        if (settingsBackStack.lastOrNull() != it) {
             settingsBackStack.add(it)
         }
     }
@@ -113,18 +127,25 @@ fun SettingsScreen(viewModel: FtViewModel) {
                     ),
                 entryProvider =
                     entryProvider {
-                        entry<Routes.SettingsRoute> { SettingsItems(navigateTo) }
+                        entry<Routes.SettingsRoute> { SettingsItems(navigateTo, viewModel) }
                         entry<Routes.SettingsSecurityRoute> { SettingsSecurityScreen() }
                         entry<Routes.SettingsThemeRoute> { SettingsThemeScreen() }
                         entry<Routes.SettingsAppRoute> { SettingsAppScreen() }
+                        entry<Routes.SettingsExportRoute> { SettingsExportScreen() }
                     },
+                transitionSpec = { animation },
+                predictivePopTransitionSpec = { animation },
             )
         }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun SettingsItems(navigate: (Routes) -> Unit) {
+fun SettingsItems(
+    navigate: (Routes) -> Unit,
+    viewModel: FtViewModel,
+) {
     val items = getSettingItems()
     LazyColumn(
         modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
@@ -134,11 +155,35 @@ fun SettingsItems(navigate: (Routes) -> Unit) {
         item {
             Text(
                 "Settings",
-                style = MaterialTheme.typography.headlineMediumEmphasized.copy(fontWeight = FontWeight.ExtraBold),
+                style = MaterialTheme.typography.displaySmall,
                 modifier = Modifier.fillMaxSize(),
                 textAlign = TextAlign.Start,
+                fontWeight = FontWeight.ExtraBold,
             )
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(48.dp))
+        }
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    "Profile",
+                    style = MaterialTheme.typography.headlineSmallEmphasized,
+                    modifier = Modifier.fillMaxSize(),
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Light,
+                )
+                SettingsProfile(viewModel)
+            }
+            Spacer(Modifier.height(24.dp))
+        }
+        item {
+            Text(
+                "Quick Actions",
+                style = MaterialTheme.typography.headlineSmallEmphasized,
+                modifier = Modifier.fillMaxSize(),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Light,
+            )
+            Spacer(Modifier.height(8.dp))
         }
         items(items) { item ->
             val isRoundedTop = items[0] == item

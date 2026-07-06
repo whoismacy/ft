@@ -35,6 +35,9 @@ sealed interface Routes {
 
     @Serializable
     data object SettingsThemeRoute : Routes, NavKey
+
+    @Serializable
+    data object SettingsExportRoute : Routes, NavKey
 }
 
 class AppNavigator(

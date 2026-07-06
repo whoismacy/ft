@@ -13,6 +13,6 @@ fun SettingsThemeScreen() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        Text("Under construction")
+        Text("Screen Under construction 🏗️🏗️")
     }
 }
