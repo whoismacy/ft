@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shrmrm.ft.data.domain.TaskLog
 import com.shrmrm.ft.data.domain.TaskState
+import com.shrmrm.ft.data.domain.User
 import com.shrmrm.ft.data.events.EventManager
 import com.shrmrm.ft.data.repository.FtRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -79,6 +80,10 @@ class FtViewModel
                             intent.taskLog,
                         )
                     }
+
+                    is FtIntent.UpsertUser -> {
+                        upsertUser(intent.user)
+                    }
                 }
             }
         }
@@ -92,6 +97,8 @@ class FtViewModel
             id: Int,
             date: Instant,
         ) = repo.getTaskLog(id, date)
+
+        fun getUser() = repo.getUser()
 
         private fun changeLoading(state: Boolean) {
             _ftUiViewState.value = _ftUiViewState.value.copy(isLoading = state)
@@ -126,6 +133,18 @@ class FtViewModel
                 changeLoading(false)
             } catch (_: Exception) {
                 triggerEvent("An error occurred while creating a new Task! ❌")
+                changeLoading(false)
+            }
+        }
+
+        private suspend fun upsertUser(user: User) {
+            changeLoading(true)
+            try {
+                repo.upsertUser(user)
+                triggerEvent("Image successfully updated🎉")
+                changeLoading(false)
+            } catch (_: Exception) {
+                triggerEvent("Error occurred ❌: Try again later")
                 changeLoading(false)
             }
         }

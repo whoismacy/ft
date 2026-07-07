@@ -22,6 +22,7 @@ adaptiveNavigation = "1.5.0-alpha21"
 mockk = "1.13.7"
 coroutinesTest = "1.10.1"
 turbine = "1.2.0"
+glide = "5.0.7"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -56,6 +57,8 @@ androidx-compose-adaptive-navigation = { module = "androidx.compose.material3:ma
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest"}
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine"}
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide"}
+glide-ksp = { module = "com.github.bumptech.glide:ksp", version.ref = "glide"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

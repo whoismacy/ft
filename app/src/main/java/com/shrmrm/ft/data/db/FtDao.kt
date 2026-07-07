@@ -8,6 +8,7 @@ import androidx.room.Upsert
 import com.shrmrm.ft.data.domain.Expense
 import com.shrmrm.ft.data.domain.Task
 import com.shrmrm.ft.data.domain.TaskLog
+import com.shrmrm.ft.data.domain.User
 import com.shrmrm.ft.utils.instantStartOfTheDay
 import kotlinx.coroutines.flow.Flow
 import java.time.Instant
@@ -75,4 +76,11 @@ interface FtDao {
 
     @Upsert
     suspend fun completeTask(taskLog: TaskLog)
+
+    // USER
+    @Upsert
+    suspend fun upsertUser(user: User)
+
+    @Query("SELECT * FROM `user`;")
+    fun getUser(): Flow<User?>
 }

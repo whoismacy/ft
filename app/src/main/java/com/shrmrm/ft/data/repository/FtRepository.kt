@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.shrmrm.ft.data.db.FtDao
 import com.shrmrm.ft.data.domain.TaskLog
+import com.shrmrm.ft.data.domain.User
 import com.shrmrm.ft.utils.instantStartOfTheDay
 import java.time.Instant
 import javax.inject.Inject
@@ -73,5 +74,12 @@ class FtRepository
 
         suspend fun completeTask(taskLog: TaskLog) {
             ftDao.completeTask(taskLog)
+        }
+
+        // USER
+        fun getUser() = ftDao.getUser()
+
+        suspend fun upsertUser(user: User) {
+            ftDao.upsertUser(user)
         }
     }

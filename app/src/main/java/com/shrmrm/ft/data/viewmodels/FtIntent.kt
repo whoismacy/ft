@@ -1,6 +1,7 @@
 package com.shrmrm.ft.data.viewmodels
 
 import com.shrmrm.ft.data.domain.TaskLog
+import com.shrmrm.ft.data.domain.User
 
 sealed class FtIntent {
     object LoadAll : FtIntent()
@@ -34,5 +35,9 @@ sealed class FtIntent {
 
     data class CompleteTask(
         val taskLog: TaskLog,
+    ) : FtIntent()
+
+    data class UpsertUser(
+        val user: User,
     ) : FtIntent()
 }
