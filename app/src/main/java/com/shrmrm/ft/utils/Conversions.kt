@@ -1,7 +1,11 @@
 package com.shrmrm.ft.utils
 
+import android.content.Context
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import java.io.File
+import java.io.FileOutputStream
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.time.Instant
@@ -38,3 +42,23 @@ fun formatCurrency(amount: Int): String {
     formatter.decimalFormatSymbols = symbols
     return formatter.format(amount)
 }
+
+fun saveImageToInternalStorage(
+    context: Context,
+    uri: Uri,
+): String? =
+    try {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val file = File(context.filesDir, "profile_picture.jpg")
+        val outputStream = FileOutputStream(file)
+
+        inputStream?.use { input ->
+            outputStream.use { output ->
+                input.copyTo(output)
+            }
+        }
+        file.absolutePath
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }

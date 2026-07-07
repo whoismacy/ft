@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -149,7 +150,7 @@ fun SettingsItems(
     val items = getSettingItems()
     LazyColumn(
         modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
@@ -223,10 +224,9 @@ fun SingleItem(
 ) {
     ListItem(
         modifier =
-            modifier.clickable(
-                true,
-                onClick = onClick,
-            ),
+            Modifier
+                .fillMaxWidth()
+                .then(modifier.clickable(true, onClick = onClick)),
         headlineContent = {
             Text(
                 headline,

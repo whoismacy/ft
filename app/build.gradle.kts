@@ -79,6 +79,8 @@ dependencies {
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.compose.adaptive.navigation)
     implementation(libs.glide)
+    implementation(libs.glide.compose)
+    implementation(libs.photo.picker)
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)

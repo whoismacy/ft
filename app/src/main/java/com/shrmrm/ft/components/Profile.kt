@@ -1,6 +1,9 @@
 package com.shrmrm.ft.components
 
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -12,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,7 +28,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
@@ -42,19 +45,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.model.GlideUrl
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.shrmrm.ft.R
 import com.shrmrm.ft.data.domain.User
+import com.shrmrm.ft.data.viewmodels.FtIntent
 import com.shrmrm.ft.data.viewmodels.FtViewModel
+import com.shrmrm.ft.utils.saveImageToInternalStorage
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -77,9 +86,9 @@ fun SettingsProfile(viewModel: FtViewModel) {
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp)
+                .padding()
                 .pointerInput(Unit) {
-                    detectTapGestures(onLongPress = {
+                    detectTapGestures(onPress = {
                         displayModalBottomSheet = true
                     })
                 },
@@ -94,7 +103,7 @@ fun SettingsProfile(viewModel: FtViewModel) {
             horizontalArrangement = Arrangement.spacedBy(20.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Avatar()
+            Avatar(user?.imageUrl)
             Column {
                 Text(
                     user?.name ?: "Null",
@@ -118,6 +127,7 @@ fun SettingsProfile(viewModel: FtViewModel) {
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun Avatar(imageUrl: String? = null) {
     Box(
@@ -128,7 +138,7 @@ fun Avatar(imageUrl: String? = null) {
                 .background(MaterialTheme.colorScheme.primaryContainer),
         contentAlignment = Alignment.Center,
     ) {
-        if (imageUrl == null) {
+        if (imageUrl.isNullOrEmpty()) {
             Icon(
                 painter = painterResource(R.drawable.outline_person_off_24),
                 contentDescription = null,
@@ -136,11 +146,18 @@ fun Avatar(imageUrl: String? = null) {
                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
             )
         } else {
-            Text("Loading")
+            GlideImage(
+                model = imageUrl,
+                contentDescription = "Profile picture",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                failure = placeholder(R.drawable.outline_person_off_24),
+            )
         }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChangeProfileDetails(
@@ -156,13 +173,29 @@ fun ChangeProfileDetails(
                 enabledValues =
                     setOf(SheetValue.Hidden, SheetValue.Expanded),
             ),
-        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         shape = MaterialTheme.shapes.medium,
         properties = ModalBottomSheetProperties(shouldDismissOnBackPress = true),
     ) {
-        var username by remember { mutableStateOf("") }
-        val isButtonEnabled = username.isNotEmpty() && user?.name != username
+        val context = LocalContext.current
+        var username by remember(user) { mutableStateOf(user?.name ?: "") }
+        var imageUrl by remember(user) { mutableStateOf(user?.imageUrl ?: "") }
+        val isSaveButtonEnabled =
+            (username.isNotEmpty() && user?.name != username) ||
+                (imageUrl.isNotEmpty() && user?.imageUrl != imageUrl)
+        val pickMedia =
+            rememberLauncherForActivityResult(
+                ActivityResultContracts
+                    .PickVisualMedia(),
+            ) { uri ->
+                if (uri != null) {
+                    val permanentPath = saveImageToInternalStorage(context, uri)
+                    if (permanentPath != null) {
+                        imageUrl = uri.toString()
+                    }
+                }
+            }
 
         Box(
             modifier = Modifier.fillMaxWidth().wrapContentHeight(),
@@ -174,6 +207,7 @@ fun ChangeProfileDetails(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text("Change Profile Details", style = MaterialTheme.typography.displaySmall)
+                Avatar(imageUrl)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(24.dp),
@@ -184,7 +218,15 @@ fun ChangeProfileDetails(
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     TextButton(
-                        onClick = {},
+                        onClick = {
+                            pickMedia.launch(
+                                PickVisualMediaRequest(
+                                    ActivityResultContracts
+                                        .PickVisualMedia
+                                        .ImageOnly,
+                                ),
+                            )
+                        },
                         border =
                             BorderStroke(
                                 width = 0.5.dp,
@@ -200,15 +242,15 @@ fun ChangeProfileDetails(
                         )
                     }
                 }
-
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
+                    Spacer(Modifier.height(8.dp))
                     Text(
                         "CHANGE USERNAME",
-                        letterSpacing = 1.5.sp,
+                        letterSpacing = 1.9.sp,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodySmallEmphasized,
                         modifier = Modifier.fillMaxWidth(),
@@ -219,32 +261,30 @@ fun ChangeProfileDetails(
                         onValueChange = { username = it },
                         modifier = Modifier.fillMaxWidth(),
                         shape = MaterialTheme.shapes.extraLarge,
-                        label = { Text("Task description") },
-                        minLines = 1,
-                        maxLines = 3,
+                        maxLines = 1,
                         keyboardOptions =
                             KeyboardOptions(
                                 capitalization = KeyboardCapitalization.Sentences,
                                 autoCorrectEnabled = true,
                                 keyboardType = KeyboardType.Text,
                             ),
-                        trailingIcon = {
-                            if (username.isNotEmpty()) {
-                                IconButton(onClick = { username = "" }) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.outline_close_24),
-                                        contentDescription = "Clear",
-                                        modifier = Modifier.fillMaxWidth(),
-                                    )
-                                }
-                            }
-                        },
                     )
                 }
 
                 Button(
-                    onClick = {},
-                    enabled = isButtonEnabled,
+                    onClick = {
+                        viewModel.handleIntent(
+                            FtIntent.UpsertUser(
+                                User(
+                                    id = 1,
+                                    name = username,
+                                    imageUrl = imageUrl,
+                                ),
+                            ),
+                        )
+                        onDismissRequest()
+                    },
+                    enabled = isSaveButtonEnabled,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Row(
