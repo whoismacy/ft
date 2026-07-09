@@ -10,8 +10,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,6 +46,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.shrmrm.ft.R
 import com.shrmrm.ft.components.SettingsProfile
 import com.shrmrm.ft.data.viewmodels.FtViewModel
+import com.shrmrm.ft.data.viewmodels.ThemeViewModel
 import com.shrmrm.ft.navigation.Routes
 
 private data class SettingsScreenItems(
@@ -99,7 +100,10 @@ private fun getSettingItems(): List<SettingsScreenItems> =
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun SettingsScreen(viewModel: FtViewModel) {
+fun SettingsScreen(
+    ftViewModel: FtViewModel,
+    themeViewModel: ThemeViewModel,
+) {
     val settingsBackStack = remember { mutableStateListOf<Routes>(Routes.SettingsRoute) }
     val navigateTo: (Routes) -> Unit = {
         if (settingsBackStack.lastOrNull() != it) {
@@ -108,7 +112,7 @@ fun SettingsScreen(viewModel: FtViewModel) {
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(viewModel.snackBarHost) },
+        snackbarHost = { SnackbarHost(ftViewModel.snackBarHost) },
     ) { innerPadding ->
         Box(
             modifier =
@@ -128,9 +132,9 @@ fun SettingsScreen(viewModel: FtViewModel) {
                     ),
                 entryProvider =
                     entryProvider {
-                        entry<Routes.SettingsRoute> { SettingsItems(navigateTo, viewModel) }
+                        entry<Routes.SettingsRoute> { SettingsItems(navigateTo, ftViewModel) }
                         entry<Routes.SettingsSecurityRoute> { SettingsSecurityScreen() }
-                        entry<Routes.SettingsThemeRoute> { SettingsThemeScreen() }
+                        entry<Routes.SettingsThemeRoute> { SettingsThemeScreen(themeViewModel) }
                         entry<Routes.SettingsAppRoute> { SettingsAppScreen() }
                         entry<Routes.SettingsExportRoute> { SettingsExportScreen() }
                     },
@@ -161,30 +165,11 @@ fun SettingsItems(
                 textAlign = TextAlign.Start,
                 fontWeight = FontWeight.ExtraBold,
             )
-            Spacer(Modifier.height(48.dp))
+            Spacer(Modifier.height(64.dp))
         }
         item {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    "Profile",
-                    style = MaterialTheme.typography.headlineSmallEmphasized,
-                    modifier = Modifier.fillMaxSize(),
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Light,
-                )
-                SettingsProfile(viewModel)
-            }
-            Spacer(Modifier.height(24.dp))
-        }
-        item {
-            Text(
-                "Quick Actions",
-                style = MaterialTheme.typography.headlineSmallEmphasized,
-                modifier = Modifier.fillMaxSize(),
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Light,
-            )
-            Spacer(Modifier.height(8.dp))
+            SettingsProfile(viewModel)
+            Spacer(Modifier.height(32.dp))
         }
         items(items) { item ->
             val isRoundedTop = items[0] == item
@@ -226,6 +211,7 @@ fun SingleItem(
         modifier =
             Modifier
                 .fillMaxWidth()
+                .defaultMinSize(minHeight = 88.dp)
                 .then(modifier.clickable(true, onClick = onClick)),
         headlineContent = {
             Text(

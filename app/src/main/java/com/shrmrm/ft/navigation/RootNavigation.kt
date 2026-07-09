@@ -10,6 +10,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.rememberNavigationSuiteScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -24,6 +25,7 @@ import com.shrmrm.ft.LocalAppNavigator
 import com.shrmrm.ft.components.NavigationComponents
 import com.shrmrm.ft.data.events.EventManager
 import com.shrmrm.ft.data.viewmodels.FtViewModel
+import com.shrmrm.ft.data.viewmodels.ThemeViewModel
 import com.shrmrm.ft.screens.ExpenseScreen
 import com.shrmrm.ft.screens.SettingsScreen
 import com.shrmrm.ft.screens.TaskScreen
@@ -34,10 +36,14 @@ private val animation =
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun RootNavigation(viewModel: FtViewModel = hiltViewModel()) {
+fun RootNavigation(
+    themeViewModel: ThemeViewModel,
+    viewModel: FtViewModel = hiltViewModel(),
+) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = viewModel.snackBarHost
     val navigator = LocalAppNavigator.current
+    val navScaffoldState = rememberNavigationSuiteScaffoldState()
 
     LaunchedEffect(Unit) {
         EventManager.channelFlow.collect { event ->
@@ -55,6 +61,7 @@ fun RootNavigation(viewModel: FtViewModel = hiltViewModel()) {
     }
 
     NavigationSuiteScaffold(
+        state = navScaffoldState,
         navigationSuiteItems = {
             NavigationComponents.entries.forEach {
                 item(
@@ -93,7 +100,10 @@ fun RootNavigation(viewModel: FtViewModel = hiltViewModel()) {
                     }
 
                     entry<Routes.SettingsRoute> {
-                        SettingsScreen(viewModel = viewModel)
+                        SettingsScreen(
+                            ftViewModel = viewModel,
+                            themeViewModel = themeViewModel,
+                        )
                     }
                 },
             transitionSpec = { animation },
