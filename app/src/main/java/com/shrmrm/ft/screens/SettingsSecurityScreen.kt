@@ -1,18 +1,11 @@
 package com.shrmrm.ft.screens
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun SettingsSecurityScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text("Screen Under construction 🏗️🏗️")
-    }
+    AuthScreen()
 }

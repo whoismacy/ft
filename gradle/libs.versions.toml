@@ -25,6 +25,7 @@ turbine = "1.2.0"
 glide = "5.0.7"
 glideCompose = "1.0.0-beta09"
 photopicker = "1.0.0-alpha02"
+biometric = "1.2.0-alpha05"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -63,6 +64,7 @@ glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide"}
 glide-ksp = { module = "com.github.bumptech.glide:ksp", version.ref = "glide"}
 photo-picker = { module = "androidx.photopicker:photopicker", version.ref = "photopicker"}
 glide-compose = { module = "com.github.bumptech.glide:compose", version.ref = "glideCompose"}
+biometrics = { module = "androidx.biometric:biometric", version.ref = "biometric"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

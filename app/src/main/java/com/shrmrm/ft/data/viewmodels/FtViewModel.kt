@@ -36,6 +36,9 @@ class FtViewModel
         private val _snackBarHost = mutableStateOf(SnackbarHostState())
         val snackBarHost = _snackBarHost.value
 
+        private val _isAuthenticated = mutableStateOf(false)
+        val isAuthenticated = _isAuthenticated
+
         init {
             handleIntent(FtIntent.LoadAll)
         }
