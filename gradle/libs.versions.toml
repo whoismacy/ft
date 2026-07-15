@@ -26,6 +26,7 @@ glide = "5.0.7"
 glideCompose = "1.0.0-beta09"
 photopicker = "1.0.0-alpha02"
 biometric = "1.2.0-alpha05"
+jetpackDataStore = "1.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -65,6 +66,7 @@ glide-ksp = { module = "com.github.bumptech.glide:ksp", version.ref = "glide"}
 photo-picker = { module = "androidx.photopicker:photopicker", version.ref = "photopicker"}
 glide-compose = { module = "com.github.bumptech.glide:compose", version.ref = "glideCompose"}
 biometrics = { module = "androidx.biometric:biometric", version.ref = "biometric"}
+jetpack-data-store = { module = "androidx.datastore:datastore-preferences", version.ref = "jetpackDataStore"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

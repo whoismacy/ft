@@ -82,6 +82,7 @@ dependencies {
     implementation(libs.glide.compose)
     implementation(libs.photo.picker)
     implementation(libs.biometrics)
+    implementation(libs.jetpack.data.store)
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
