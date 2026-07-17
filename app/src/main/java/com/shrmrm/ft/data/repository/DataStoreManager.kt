@@ -1,10 +1,11 @@
 package com.shrmrm.ft.data.repository
 
 import android.content.Context
-import androidx.datastore.dataStoreFile
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.shrmrm.ft.data.viewmodels.AppThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -14,28 +15,27 @@ class DataStoreManager(
     private val context: Context,
 ) {
     companion object {
-        val DARK_MODE_KEY = booleanPreferencesKey("dark_mode")
+        val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
         val DYNAMIC_MODE_KEY = booleanPreferencesKey("dynamic_mode")
     }
 
-    suspend fun setDarkMode(enabled: Boolean) {
-        context.dataStore.edit { prefs ->
-            prefs[DARK_MODE_KEY] = enabled
+    val themeMode: Flow<AppThemeMode> =
+        context.dataStore.data.map { prefs ->
+            val name = prefs[THEME_MODE_KEY] ?: AppThemeMode.SYSTEM.name
+            AppThemeMode.valueOf(name)
         }
+
+    suspend fun setThemeMode(mode: AppThemeMode) {
+        context.dataStore.edit { it[THEME_MODE_KEY] = mode.name }
     }
 
-    val isDarkMode: Flow<Boolean> =
-        context
-            .dataStore.data
-            .map { prefs -> prefs[DARK_MODE_KEY] ?: false }
-
-    suspend fun setDynamicMode(enabled: Boolean) {
+    suspend fun setDynamicModeEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[DYNAMIC_MODE_KEY] = enabled
         }
     }
 
-    val isDynamicMode: Flow<Boolean> =
+    val isDynamicModeEnabled: Flow<Boolean> =
         context
             .dataStore.data
             .map { prefs -> prefs[DYNAMIC_MODE_KEY] ?: false }

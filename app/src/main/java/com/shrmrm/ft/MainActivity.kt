@@ -7,15 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.shrmrm.ft.data.repository.DataStoreManager
-import com.shrmrm.ft.data.viewmodels.FtViewModel
 import com.shrmrm.ft.data.viewmodels.ThemeViewModel
 import com.shrmrm.ft.navigation.AppNavigator
 import com.shrmrm.ft.navigation.RootNavigation
@@ -27,10 +22,13 @@ val LocalAppNavigator =
     staticCompositionLocalOf<AppNavigator>
     { error("No appNavigator provided!") }
 
+val LocalThemeViewModel =
+    staticCompositionLocalOf<ThemeViewModel>
+    { error("NO ThemeViewModel Provided") }
+
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
-    private val context = LocalContext.current
-    private val dataStoreManager = DataStoreManager(context)
+    val themeViewModel by viewModels<ThemeViewModel>()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,14 +36,14 @@ class MainActivity : FragmentActivity() {
         enableEdgeToEdge()
         setContent {
             val themeMode =
-                dataStoreManager
-                    .isDarkMode
-                    .collectAsStateWithLifecycle(false)
+                themeViewModel
+                    .themeMode
+                    .collectAsStateWithLifecycle()
                     .value
             val dynamicMode =
-                dataStoreManager
-                    .isDynamicMode
-                    .collectAsStateWithLifecycle(false)
+                themeViewModel
+                    .dynamicModeEnabled
+                    .collectAsStateWithLifecycle()
                     .value
             FTTheme(
                 themeMode = themeMode,
@@ -55,8 +53,11 @@ class MainActivity : FragmentActivity() {
                     remember {
                         AppNavigator(Routes.ExpensesRoute)
                     }
-                CompositionLocalProvider(LocalAppNavigator provides appNavigator) {
-                    RootNavigation(themeViewModel)
+                CompositionLocalProvider(
+                    LocalAppNavigator provides appNavigator,
+                    LocalThemeViewModel provides themeViewModel,
+                ) {
+                    RootNavigation()
                 }
             }
         }

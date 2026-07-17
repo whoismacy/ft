@@ -1,21 +1,44 @@
 package com.shrmrm.ft.data.viewmodels
 
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import androidx.lifecycle.viewModelScope
+import com.shrmrm.ft.data.repository.DataStoreManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ThemeViewModel : ViewModel() {
-    private val _themeMode = MutableStateFlow(AppThemeMode.SYSTEM)
-    val themeMode: StateFlow<AppThemeMode> = _themeMode
+@HiltViewModel
+class ThemeViewModel
+    @Inject
+    constructor(
+        private val dataStoreManager: DataStoreManager,
+    ) : ViewModel() {
+        private val _dynamicModeEnabled =
+            dataStoreManager.isDynamicModeEnabled.stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                false,
+            )
+        val dynamicModeEnabled = _dynamicModeEnabled
 
-    private val _dynamicColour = MutableStateFlow(true)
-    val dynamicColour: StateFlow<Boolean> = _dynamicColour
+        val themeMode =
+            dataStoreManager.themeMode.stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                AppThemeMode.SYSTEM,
+            )
 
-    fun setThemeMode(mode: AppThemeMode) {
-        _themeMode.value = mode
+        fun setThemeMode(value: AppThemeMode) {
+            viewModelScope.launch {
+                dataStoreManager.setThemeMode(value)
+            }
+        }
+
+        fun setDynamicMode(value: Boolean) {
+            viewModelScope.launch {
+                dataStoreManager.setDynamicModeEnabled(value)
+            }
+        }
     }
-
-    fun toggleDynamicColour() {
-        _dynamicColour.value = !_dynamicColour.value
-    }
-}

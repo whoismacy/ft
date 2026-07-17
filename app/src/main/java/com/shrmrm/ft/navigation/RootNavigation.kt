@@ -25,7 +25,6 @@ import com.shrmrm.ft.LocalAppNavigator
 import com.shrmrm.ft.components.NavigationComponents
 import com.shrmrm.ft.data.events.EventManager
 import com.shrmrm.ft.data.viewmodels.FtViewModel
-import com.shrmrm.ft.data.viewmodels.ThemeViewModel
 import com.shrmrm.ft.screens.ExpenseScreen
 import com.shrmrm.ft.screens.SettingsScreen
 import com.shrmrm.ft.screens.TaskScreen
@@ -36,10 +35,7 @@ private val animation =
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun RootNavigation(
-    themeViewModel: ThemeViewModel,
-    viewModel: FtViewModel = hiltViewModel(),
-) {
+fun RootNavigation(viewModel: FtViewModel = hiltViewModel()) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = viewModel.snackBarHost
     val navigator = LocalAppNavigator.current
@@ -102,7 +98,6 @@ fun RootNavigation(
                     entry<Routes.SettingsRoute> {
                         SettingsScreen(
                             ftViewModel = viewModel,
-                            themeViewModel = themeViewModel,
                         )
                     }
                 },

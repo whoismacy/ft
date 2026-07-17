@@ -1,5 +1,7 @@
 package com.shrmrm.ft.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,22 +27,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.shrmrm.ft.LocalThemeViewModel
 import com.shrmrm.ft.R
 import com.shrmrm.ft.data.viewmodels.AppThemeMode
-import com.shrmrm.ft.data.viewmodels.ThemeViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun SettingsThemeScreen(themeViewModel: ThemeViewModel) {
-    val currentTheme =
+fun SettingsThemeScreen() {
+    val themeViewModel = LocalThemeViewModel.current
+    val themeMode =
         themeViewModel
             .themeMode
             .collectAsStateWithLifecycle()
             .value
-    val dynamicColour =
+    val dynamicModeEnabled =
         themeViewModel
-            .dynamicColour
+            .dynamicModeEnabled
             .collectAsStateWithLifecycle()
             .value
+
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -58,7 +63,7 @@ fun SettingsThemeScreen(themeViewModel: ThemeViewModel) {
             shape = RoundedCornerShape(24.dp),
         ) {
             ListItem(
-                modifier = Modifier.clickable { themeViewModel.toggleDynamicColour() },
+                modifier = Modifier.clickable { themeViewModel.setDynamicMode(value = !dynamicModeEnabled) },
                 headlineContent = { Text("Dynamic Colour", fontWeight = FontWeight.Bold) },
                 supportingContent = { Text(("Match app colours to your wallpaper")) },
                 leadingContent = {
@@ -69,8 +74,8 @@ fun SettingsThemeScreen(themeViewModel: ThemeViewModel) {
                 },
                 trailingContent = {
                     Switch(
-                        checked = dynamicColour,
-                        onCheckedChange = { themeViewModel.toggleDynamicColour() },
+                        checked = dynamicModeEnabled,
+                        onCheckedChange = { themeViewModel.setDynamicMode(value = !dynamicModeEnabled) },
                     )
                 },
                 colors =
@@ -79,24 +84,14 @@ fun SettingsThemeScreen(themeViewModel: ThemeViewModel) {
                     ),
             )
         }
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Theme Mode", style = MaterialTheme.typography.labelLarge)
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                AppThemeMode.entries.forEachIndexed { index, mode ->
-                    SegmentedButton(
-                        selected = currentTheme == mode,
-                        onClick = { themeViewModel.setThemeMode(mode) },
-                        shape =
-                            SegmentedButtonDefaults.itemShape(
-                                index = index,
-                                count = AppThemeMode.entries.size,
-                            ),
-                        icon = {},
-                        label = {
-                            Text(mode.value)
-                        },
-                    )
-                }
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            AppThemeMode.entries.forEachIndexed { index, mode ->
+                SegmentedButton(
+                    selected = mode == themeMode,
+                    onClick = { themeViewModel.setThemeMode(mode) },
+                    shape = SegmentedButtonDefaults.itemShape(index, AppThemeMode.entries.size),
+                    label = { Text(mode.name) },
+                )
             }
         }
     }

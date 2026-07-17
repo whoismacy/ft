@@ -46,7 +46,6 @@ import androidx.navigation3.ui.NavDisplay
 import com.shrmrm.ft.R
 import com.shrmrm.ft.components.SettingsProfile
 import com.shrmrm.ft.data.viewmodels.FtViewModel
-import com.shrmrm.ft.data.viewmodels.ThemeViewModel
 import com.shrmrm.ft.navigation.Routes
 
 private data class SettingsScreenItems(
@@ -100,10 +99,7 @@ private fun getSettingItems(): List<SettingsScreenItems> =
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun SettingsScreen(
-    ftViewModel: FtViewModel,
-    themeViewModel: ThemeViewModel,
-) {
+fun SettingsScreen(ftViewModel: FtViewModel) {
     val settingsBackStack = remember { mutableStateListOf<Routes>(Routes.SettingsRoute) }
     val navigateTo: (Routes) -> Unit = {
         if (settingsBackStack.lastOrNull() != it) {
@@ -134,7 +130,7 @@ fun SettingsScreen(
                     entryProvider {
                         entry<Routes.SettingsRoute> { SettingsItems(navigateTo, ftViewModel) }
                         entry<Routes.SettingsSecurityRoute> { SettingsSecurityScreen() }
-                        entry<Routes.SettingsThemeRoute> { SettingsThemeScreen(themeViewModel) }
+                        entry<Routes.SettingsThemeRoute> { SettingsThemeScreen() }
                         entry<Routes.SettingsAppRoute> { SettingsAppScreen() }
                         entry<Routes.SettingsExportRoute> { SettingsExportScreen() }
                     },
@@ -244,8 +240,8 @@ fun SingleItem(
         shadowElevation = 6.dp,
         colors =
             ListItemDefaults.colors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                contentColor = MaterialTheme.colorScheme.onSurface,
             ),
     )
 }
